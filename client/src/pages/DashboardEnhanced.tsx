@@ -72,28 +72,8 @@ export default function DashboardEnhanced() {
     };
   }, [allEvents]);
 
-  if (authLoading) {
-    return <DashboardSkeleton />;
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 max-w-md text-center">
-          <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">
-            Sign In Required
-          </h2>
-          <p className="text-muted-foreground mb-6">
-            Please sign in to access the dashboard and start tracking opportunities.
-          </p>
-          <Link href="/">
-            <Button>Back to Home</Button>
-          </Link>
-        </Card>
-      </div>
-    );
-  }
+  // Removed auth requirement - dashboard is now public for demo purposes
+  // TODO: Add back auth for premium features later
 
   return (
     <div className="min-h-screen bg-background">
