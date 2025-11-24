@@ -15,6 +15,13 @@
       "when": 1764008643379,
       "tag": "0001_peaceful_thundra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1764010691616,
+      "tag": "0002_careful_eddie_brock",
+      "breakpoints": true
     }
   ]
 }

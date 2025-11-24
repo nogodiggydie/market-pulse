@@ -17,6 +17,18 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  
+  /** Stripe customer ID for payment processing */
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  /** Current subscription tier */
+  subscriptionTier: mysqlEnum("subscription_tier", ["free", "pro", "premium"]).default("free").notNull(),
+  /** Stripe subscription ID for active subscription */
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  /** Subscription status */
+  subscriptionStatus: mysqlEnum("subscription_status", ["active", "canceled", "past_due", "trialing", "incomplete"]),
+  /** Subscription end date (for canceled subscriptions) */
+  subscriptionEndsAt: timestamp("subscription_ends_at"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

@@ -14,12 +14,10 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="relative flex h-10 w-10 items-center justify-center">
-              <div className="absolute inset-0 rotate-45 rounded-lg bg-gradient-to-br from-primary via-chart-2 to-accent"></div>
-              <div className="absolute inset-1 rotate-45 rounded-md bg-background"></div>
-              <Zap className="relative h-5 w-5 text-primary z-10" />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
+              <Zap className="h-5 w-5 text-background" />
             </div>
-            <span className="font-['Space_Grotesk'] text-2xl font-bold bg-gradient-to-r from-primary via-chart-4 to-accent bg-clip-text text-transparent">
+            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary via-chart-4 to-accent bg-clip-text text-transparent">
               {APP_TITLE}
             </span>
           </div>
@@ -58,7 +56,7 @@ export default function Home() {
               AI-Powered Market Intelligence
             </div>
             
-            <h1 className="font-['Space_Grotesk'] text-6xl font-bold leading-tight tracking-tight mb-6">
+            <h1 className="text-6xl font-bold leading-tight tracking-tight mb-6">
               <span className="bg-gradient-to-r from-foreground via-primary to-chart-4 bg-clip-text text-transparent">
                 Spot Value Before
               </span>
@@ -113,7 +111,7 @@ export default function Home() {
               <div className="h-2 w-2 rounded-full bg-accent"></div>
               FEATURES
             </div>
-            <h2 className="font-['Space_Grotesk'] text-4xl font-bold mb-4">
+            <h2 className="text-4xl font-bold mb-4">
               Everything You Need to Win
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -203,7 +201,7 @@ export default function Home() {
           <Card className="relative overflow-hidden border-border/40 bg-gradient-to-br from-card via-card to-primary/5">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iIzBERjlGRiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-20" />
             <div className="relative p-12 text-center">
-              <h2 className="font-['Space_Grotesk'] text-4xl font-bold mb-4">
+              <h2 className="text-4xl font-bold mb-4">
                 Ready to Get Started?
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -232,12 +230,10 @@ export default function Home() {
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="relative flex h-6 w-6 items-center justify-center">
-                <div className="absolute inset-0 rotate-45 rounded bg-gradient-to-br from-primary to-accent"></div>
-                <div className="absolute inset-0.5 rotate-45 rounded-sm bg-background"></div>
-                <Zap className="relative h-3 w-3 text-primary z-10" />
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent">
+                <Zap className="h-3 w-3 text-background" />
               </div>
-              <span className="font-['Space_Grotesk'] font-semibold">{APP_TITLE}</span>
+              <span className="font-semibold">{APP_TITLE}</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <a href="#" className="hover:text-foreground transition-colors">Terms</a>

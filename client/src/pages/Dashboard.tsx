@@ -60,12 +60,10 @@ export default function Dashboard() {
         <div className="container flex h-16 items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer">
-              <div className="relative flex h-8 w-8 items-center justify-center">
-                <div className="absolute inset-0 rotate-45 rounded-lg bg-gradient-to-br from-primary via-chart-2 to-accent"></div>
-                <div className="absolute inset-0.5 rotate-45 rounded-md bg-background"></div>
-                <Zap className="relative h-4 w-4 text-primary z-10" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
+                <Zap className="h-4 w-4 text-background" />
               </div>
-              <span className="font-['Space_Grotesk'] text-xl font-bold bg-gradient-to-r from-primary via-chart-4 to-accent bg-clip-text text-transparent">
+              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary via-chart-4 to-accent bg-clip-text text-transparent">
                 {APP_TITLE}
               </span>
             </div>
