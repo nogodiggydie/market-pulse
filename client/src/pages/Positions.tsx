@@ -20,6 +20,7 @@ import { APP_TITLE, getLoginUrl } from "@/const";
 import { Link } from "wouter";
 import { useState, useMemo } from "react";
 import { ConnectWallet } from "@/components/ConnectWallet";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 type PositionFilter = "all" | "kalshi" | "polymarket";
 
@@ -64,6 +65,33 @@ export default function Positions() {
       winning: positions.filter(p => (p.currentValue || 0) > (p.totalCost || 0)).length,
     };
   }, [positions]);
+
+  // Generate historical P&L data (simulated for now)
+  const historicalData = useMemo(() => {
+    if (!stats) return [];
+    
+    const days = 30;
+    const data = [];
+    const today = new Date();
+    
+    for (let i = days; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      
+      // Simulate historical performance with some variance
+      const progress = (days - i) / days;
+      const variance = (Math.random() - 0.5) * 0.2;
+      const value = stats.totalCost * (1 + (stats.pnlPercent / 100) * progress + variance);
+      
+      data.push({
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        value: Math.max(0, value),
+        pnl: value - stats.totalCost,
+      });
+    }
+    
+    return data;
+  }, [stats]);
 
   const isLoading = kalshiLoading;
 
@@ -187,6 +215,63 @@ export default function Positions() {
               </div>
             </Card>
           </div>
+        )}
+
+        {/* Historical P&L Chart */}
+        {stats && historicalData.length > 0 && (
+          <Card className="p-6 border-border/40 bg-gradient-to-br from-card to-card/50">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Portfolio Performance</h3>
+                  <p className="text-sm text-muted-foreground">Last 30 days</p>
+                </div>
+                <TrendingUp className={`h-5 w-5 ${stats.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`} />
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={historicalData}>
+                  <defs>
+                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                    tickFormatter={(value) => `$${value.toFixed(0)}`}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      padding: '12px',
+                    }}
+                    formatter={(value: number, name: string) => {
+                      if (name === 'value') return [`$${value.toFixed(2)}`, 'Portfolio Value'];
+                      return [`$${value.toFixed(2)}`, 'P&L'];
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    fill="url(#colorValue)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
         )}
 
         {/* Filters */}

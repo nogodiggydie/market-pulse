@@ -166,3 +166,10 @@
 - [x] Add position filtering (all, Kalshi, Polymarket)
 - [ ] Add close position functionality
 - [ ] Test position tracking with mock data
+
+## Historical P&L Chart
+- [x] Install Recharts library
+- [x] Create portfolio history data structure
+- [x] Build P&L line chart component
+- [x] Add chart to My Positions page
+- [x] Test chart with sample data
