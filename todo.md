@@ -155,3 +155,14 @@
 - [x] Add transaction signing and submission
 - [ ] Test wallet connection flow
 - [ ] Test Polymarket trade execution
+
+## My Positions Page
+- [x] Create backend endpoint to fetch Kalshi positions
+- [ ] Create backend endpoint to fetch Polymarket positions  
+- [x] Build My Positions page UI component
+- [x] Add position cards with market details
+- [x] Calculate and display real-time P&L
+- [x] Show win probability and current odds
+- [x] Add position filtering (all, Kalshi, Polymarket)
+- [ ] Add close position functionality
+- [ ] Test position tracking with mock data
