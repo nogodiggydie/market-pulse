@@ -14,10 +14,12 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary via-accent to-chart-3">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
+            <div className="relative flex h-10 w-10 items-center justify-center">
+              <div className="absolute inset-0 rotate-45 rounded-lg bg-gradient-to-br from-primary via-chart-2 to-accent"></div>
+              <div className="absolute inset-1 rotate-45 rounded-md bg-background"></div>
+              <Zap className="relative h-5 w-5 text-primary z-10" />
             </div>
-            <span className="font-['Space_Grotesk'] text-2xl font-bold bg-gradient-to-r from-primary via-accent to-chart-3 bg-clip-text text-transparent">
+            <span className="font-['Space_Grotesk'] text-2xl font-bold bg-gradient-to-r from-primary via-chart-4 to-accent bg-clip-text text-transparent">
               {APP_TITLE}
             </span>
           </div>
@@ -44,23 +46,24 @@ export default function Home() {
       <section className="relative overflow-hidden pt-32 pb-20">
         {/* Gradient background */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-primary/20 rounded-full blur-3xl" />
+          <div className="absolute top-40 right-0 w-[700px] h-[700px] bg-accent/15 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-chart-3/10 rounded-full blur-3xl" />
         </div>
 
         <div className="container">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-              <Zap className="h-4 w-4" />
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-4 py-2 text-sm font-medium text-primary shadow-lg shadow-primary/20">
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
               AI-Powered Market Intelligence
             </div>
             
             <h1 className="font-['Space_Grotesk'] text-6xl font-bold leading-tight tracking-tight mb-6">
-              <span className="bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-foreground via-primary to-chart-4 bg-clip-text text-transparent">
                 Spot Value Before
               </span>
               <br />
-              <span className="bg-gradient-to-r from-accent via-chart-3 to-primary bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-accent via-chart-2 to-primary bg-clip-text text-transparent">
                 The Crowd Does
               </span>
             </h1>
@@ -106,7 +109,8 @@ export default function Home() {
       <section className="py-20 border-t border-border/40">
         <div className="container">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-4 py-2 text-sm font-medium text-accent mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/15 px-4 py-2 text-sm font-medium text-accent mb-4 shadow-lg shadow-accent/20">
+              <div className="h-2 w-2 rounded-full bg-accent"></div>
               FEATURES
             </div>
             <h2 className="font-['Space_Grotesk'] text-4xl font-bold mb-4">
@@ -228,7 +232,11 @@ export default function Home() {
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
+              <div className="relative flex h-6 w-6 items-center justify-center">
+                <div className="absolute inset-0 rotate-45 rounded bg-gradient-to-br from-primary to-accent"></div>
+                <div className="absolute inset-0.5 rotate-45 rounded-sm bg-background"></div>
+                <Zap className="relative h-3 w-3 text-primary z-10" />
+              </div>
               <span className="font-['Space_Grotesk'] font-semibold">{APP_TITLE}</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">

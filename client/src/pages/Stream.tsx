@@ -33,11 +33,13 @@ export default function Stream() {
       {/* Header Bar */}
       <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-accent to-chart-3 shadow-lg shadow-primary/20">
-            <Sparkles className="h-6 w-6 text-primary-foreground" />
+          <div className="relative flex h-12 w-12 items-center justify-center">
+            <div className="absolute inset-0 rotate-45 rounded-xl bg-gradient-to-br from-primary via-chart-2 to-accent shadow-lg shadow-primary/30"></div>
+            <div className="absolute inset-1.5 rotate-45 rounded-lg bg-background"></div>
+            <Zap className="relative h-6 w-6 text-primary z-10" />
           </div>
           <div>
-            <h1 className="font-['Space_Grotesk'] text-3xl font-bold bg-gradient-to-r from-primary via-accent to-chart-3 bg-clip-text text-transparent">
+            <h1 className="font-['Space_Grotesk'] text-3xl font-bold bg-gradient-to-r from-primary via-chart-4 to-accent bg-clip-text text-transparent">
               {APP_TITLE}
             </h1>
             <p className="text-sm text-muted-foreground">Live Market Intelligence</p>
