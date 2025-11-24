@@ -21,21 +21,75 @@ export const appRouter = router({
 
   // News & Markets
   news: router({
-    // Get trending news events
-    trending: publicProcedure.query(async () => {
-      const { fetchTrendingEvents } = await import("./services/newsDetector");
-      const newsApiKey = process.env.NEWSAPI_KEY;
-      const events = await fetchTrendingEvents(10, newsApiKey);
-      return events;
-    }),
-
-    // Get news by category
-    byCategory: publicProcedure
-      .input(z.object({ category: z.string(), limit: z.number().default(10) }))
+    // Get trending news events with matched markets
+    opportunities: publicProcedure
+      .input(z.object({ limit: z.number().optional().default(10) }).optional())
       .query(async ({ input }) => {
-        const { getNewsEventsByCategory } = await import("./db");
-        return getNewsEventsByCategory(input.category, input.limit);
+        const { fetchTrendingEvents } = await import("./services/newsDetector");
+        const { fetchAllMarkets } = await import("./services/marketAggregator");
+        const { findMarketsForEvent } = await import("./services/marketMatcher");
+
+        // Fetch news events
+        const events = await fetchTrendingEvents(input?.limit || 10, process.env.NEWSAPI_KEY);
+
+        // Fetch all available markets
+        const markets = await fetchAllMarkets(200);
+
+        // Match markets to events
+        const opportunities = [];
+        for (const event of events) {
+          const matchedMarkets = await findMarketsForEvent(
+            event.title,
+            event.keywords,
+            markets,
+            3
+          );
+
+          opportunities.push({
+            event,
+            markets: matchedMarkets,
+          });
+        }
+
+        return opportunities;
       }),
+
+    // Get Market of the Hour (top opportunity)
+    marketOfHour: publicProcedure.query(async () => {
+      const { fetchTrendingEvents } = await import("./services/newsDetector");
+      const { fetchAllMarkets } = await import("./services/marketAggregator");
+      const { findMarketsForEvent } = await import("./services/marketMatcher");
+
+      const events = await fetchTrendingEvents(5, process.env.NEWSAPI_KEY);
+      const markets = await fetchAllMarkets(200);
+
+      // Find best opportunity
+      let bestOpportunity = null;
+      let bestScore = 0;
+
+      for (const event of events) {
+        const matchedMarkets = await findMarketsForEvent(
+          event.title,
+          event.keywords,
+          markets,
+          1
+        );
+
+        if (matchedMarkets.length > 0) {
+          const score = event.velocity * matchedMarkets[0].relevanceScore;
+          if (score > bestScore) {
+            bestScore = score;
+            bestOpportunity = {
+              event,
+              market: matchedMarkets[0].market,
+              relevance: matchedMarkets[0].relevanceScore,
+            };
+          }
+        }
+      }
+
+      return bestOpportunity;
+    }),
   }),
 
   markets: router({

@@ -7,12 +7,10 @@
  */
 
 import { invokeLLM } from "../_core/llm";
-import type { Market, Quote, Venue } from "../../drizzle/schema";
+import type { UnifiedMarket } from "./marketAggregator";
 
 export interface MarketCandidate {
-  market: Market;
-  venue: Venue;
-  latestQuote?: Quote;
+  market: UnifiedMarket;
   relevanceScore: number; // 0-100
   reasoning?: string;
 }
@@ -23,20 +21,23 @@ export interface MarketCandidate {
 export async function findMarketsForEvent(
   eventTitle: string,
   eventKeywords: string[],
-  markets: Market[],
-  venues: Map<number, Venue>,
-  quotes: Map<number, Quote>,
+  markets: UnifiedMarket[],
   limit: number = 5
 ): Promise<MarketCandidate[]> {
   console.log(`\nSearching ${markets.length} markets for event: '${eventTitle}'`);
   console.log(`Keywords: ${eventKeywords.slice(0, 5).join(", ")}`);
 
   // First pass: Quick keyword filter
-  const candidates: Array<{ market: Market; keywordScore: number }> = [];
+  const candidates: Array<{ market: UnifiedMarket; keywordScore: number }> = [];
 
   for (const market of markets) {
-    const titleLower = market.title.toLowerCase();
-    const keywordMatches = eventKeywords.filter((kw) => titleLower.includes(kw.toLowerCase())).length;
+    const questionLower = market.question.toLowerCase();
+    const descLower = (market.description || "").toLowerCase();
+    const combinedText = `${questionLower} ${descLower}`;
+    
+    const keywordMatches = eventKeywords.filter((kw) => 
+      combinedText.includes(kw.toLowerCase())
+    ).length;
 
     if (keywordMatches > 0) {
       candidates.push({
@@ -61,15 +62,11 @@ export async function findMarketsForEvent(
 
   for (const candidate of topCandidates) {
     const { market } = candidate;
-    const venue = venues.get(market.venueId);
-    const latestQuote = quotes.get(market.id);
-
-    if (!venue) continue;
 
     const relevanceScore = await scoreMarketRelevance(
       eventTitle,
       eventKeywords,
-      market.title,
+      market.question,
       market.description || ""
     );
 
@@ -77,8 +74,6 @@ export async function findMarketsForEvent(
       // Only include if >60% relevant
       results.push({
         market,
-        venue,
-        latestQuote,
         relevanceScore,
       });
     }

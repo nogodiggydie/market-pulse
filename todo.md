@@ -100,3 +100,15 @@
 - [x] Switch from Space Grotesk to Inter font
 - [x] Update all logo instances across pages
 - [x] Update typography system
+
+## Prediction Market API Integration
+- [x] Research Kalshi API documentation
+- [x] Research Polymarket API documentation
+- [x] Research Manifold API documentation
+- [x] Create Kalshi integration module
+- [x] Create Polymarket integration module
+- [x] Create Manifold integration module
+- [x] Implement market data fetching
+- [x] Implement market syncing to database
+- [x] Update news-to-market matching with live data
+- [x] Test all API integrations

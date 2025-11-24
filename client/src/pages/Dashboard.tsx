@@ -22,8 +22,8 @@ export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Fetch trending news
-  const { data: newsEvents, isLoading: newsLoading, refetch: refetchNews } = trpc.news.trending.useQuery();
+  // Fetch trending news with matched markets
+  const { data: opportunities, isLoading: newsLoading, refetch: refetchNews } = trpc.news.opportunities.useQuery({ limit: 10 });
 
   if (authLoading) {
     return <DashboardSkeleton />;
@@ -49,9 +49,9 @@ export default function Dashboard() {
   }
 
   const categories = ["all", "crypto", "politics", "economy", "tech"];
-  const filteredEvents = selectedCategory && selectedCategory !== "all"
-    ? newsEvents?.filter(e => e.category === selectedCategory)
-    : newsEvents;
+  const filteredOpportunities = selectedCategory && selectedCategory !== "all"
+    ? opportunities?.filter((opp: any) => opp.event.category === selectedCategory)
+    : opportunities;
 
   return (
     <div className="min-h-screen bg-background">
@@ -135,10 +135,10 @@ export default function Dashboard() {
               </Card>
             ))}
           </div>
-        ) : filteredEvents && filteredEvents.length > 0 ? (
+        ) : filteredOpportunities && filteredOpportunities.length > 0 ? (
           <div className="space-y-6">
-            {filteredEvents.map((event, idx) => (
-              <NewsEventCard key={idx} event={event} />
+            {filteredOpportunities.map((opp: any, idx: number) => (
+              <NewsEventCard key={idx} opportunity={opp} />
             ))}
           </div>
         ) : (
@@ -157,7 +157,9 @@ export default function Dashboard() {
   );
 }
 
-function NewsEventCard({ event }: { event: any }) {
+function NewsEventCard({ opportunity }: { opportunity: any }) {
+  const event = opportunity.event;
+  const matchedMarkets = opportunity.markets || [];
   const velocityColor = 
     event.velocity >= 80 ? "text-chart-3" :
     event.velocity >= 60 ? "text-primary" :
@@ -220,18 +222,48 @@ function NewsEventCard({ event }: { event: any }) {
       </div>
 
       {/* Matched Markets Section */}
-      <div className="mt-6 pt-6 border-t border-border/40">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <span className="font-semibold">Related Markets</span>
-          <Badge variant="outline" className="ml-auto">
-            Coming Soon
-          </Badge>
+      {matchedMarkets.length > 0 && (
+        <div className="mt-6 pt-6 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            <span className="font-semibold">Related Markets</span>
+            <Badge variant="outline" className="ml-auto">
+              {matchedMarkets.length} found
+            </Badge>
+          </div>
+          <div className="space-y-3">
+            {matchedMarkets.map((match: any, i: number) => (
+              <div key={i} className="p-4 rounded-lg bg-muted/30 border border-border/40">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="text-xs">
+                        {match.market.venue}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {match.relevanceScore}% match
+                      </Badge>
+                    </div>
+                    <p className="font-medium text-sm mb-1">{match.market.question}</p>
+                    {match.market.probability && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <DollarSign className="h-3 w-3" />
+                        {(match.market.probability * 100).toFixed(1)}% probability
+                      </div>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm" className="gap-1" asChild>
+                    <a href={match.market.url} target="_blank" rel="noopener noreferrer">
+                      View
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          AI-powered market matching will show relevant prediction markets here.
-        </p>
-      </div>
+      )}
 
       {/* Action Buttons */}
       {event.url && (

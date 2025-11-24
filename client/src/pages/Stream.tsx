@@ -7,7 +7,8 @@ import { APP_TITLE } from "@/const";
 
 export default function Stream() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { data: newsEvents, refetch } = trpc.news.trending.useQuery();
+  const { data: marketOfHour, refetch: refetchMarket } = trpc.news.marketOfHour.useQuery();
+  const { data: opportunities, refetch: refetchOpps } = trpc.news.opportunities.useQuery({ limit: 10 });
 
   // Update time every second
   useEffect(() => {
@@ -20,13 +21,14 @@ export default function Stream() {
   // Auto-refresh data every 30 seconds
   useEffect(() => {
     const refreshTimer = setInterval(() => {
-      refetch();
+      refetchMarket();
+      refetchOpps();
     }, 30000);
     return () => clearInterval(refreshTimer);
-  }, [refetch]);
+  }, [refetchMarket, refetchOpps]);
 
-  const topEvent = newsEvents?.[0];
-  const recentEvents = newsEvents?.slice(1, 4) || [];
+  const topEvent = marketOfHour?.event;
+  const recentEvents = opportunities?.slice(0, 3).map((opp: any) => opp.event) || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-8">
@@ -183,7 +185,9 @@ export default function Stream() {
             </div>
             <div className="flex-1 overflow-hidden">
               <div className="animate-marquee whitespace-nowrap">
-                {newsEvents?.map((event: any, idx: number) => (
+                {opportunities?.map((opp: any, idx: number) => {
+                  const event = opp.event;
+                  return (
                   <span key={idx} className="inline-flex items-center gap-2 mr-8">
                     <Badge variant="outline" className="text-xs">
                       {event.category}
@@ -191,7 +195,8 @@ export default function Stream() {
                     <span className="text-sm">{event.title}</span>
                     <span className="text-xs text-muted-foreground">•</span>
                   </span>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -206,7 +211,7 @@ export default function Stream() {
         </Card>
         <Card className="p-4 bg-card/80 backdrop-blur border-accent/40">
           <div className="text-xs text-muted-foreground mb-1">Active Events</div>
-          <div className="text-2xl font-bold text-accent">{newsEvents?.length || 0}</div>
+          <div className="text-2xl font-bold text-accent">{opportunities?.length || 0}</div>
         </Card>
       </div>
     </div>
