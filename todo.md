@@ -130,3 +130,28 @@
 - [x] Fix authentication flow if needed
 - [x] Add better error handling and fallbacks
 - [x] Test dashboard loads with real data
+
+## Direct Trading Integration
+- [x] Update Kalshi integration with authenticated order placement
+- [x] Create Polymarket trading integration module
+- [x] Add trading backend endpoints (place order, cancel order, get positions)
+- [x] Create order placement UI modal
+- [x] Add position sizing controls
+- [x] Build order confirmation flow
+- [ ] Create positions dashboard page
+- [ ] Add P&L tracking and calculations
+- [ ] Integrate wallet connection for Polymarket
+- [ ] Add "Trade Now" buttons to matched markets
+- [ ] Test order placement flows
+- [ ] Add error handling for failed orders
+
+## MetaMask Integration for Polymarket
+- [x] Install Web3 dependencies (ethers.js, wagmi, viem)
+- [x] Create WalletContext for connection state
+- [x] Build Connect Wallet button component
+- [x] Add network switching to Polygon
+- [x] Display USDC balance
+- [x] Update TradeModal for wallet-based Polymarket trades
+- [x] Add transaction signing and submission
+- [ ] Test wallet connection flow
+- [ ] Test Polymarket trade execution

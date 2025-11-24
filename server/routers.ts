@@ -170,6 +170,130 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     }),
   }),
 
+  // Trading endpoints
+  trading: router({
+    // Place order on Kalshi
+    placeKalshiOrder: protectedProcedure
+      .input(z.object({
+        ticker: z.string(),
+        action: z.enum(['buy', 'sell']),
+        side: z.enum(['yes', 'no']),
+        count: z.number().positive(),
+        type: z.enum(['market', 'limit']),
+        yesPrice: z.number().optional(),
+        noPrice: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { placeKalshiOrder } = await import('./integrations/kalshiTrading');
+        
+        if (!process.env.KALSHI_API_KEY || !process.env.KALSHI_PRIVATE_KEY) {
+          throw new Error('Kalshi credentials not configured');
+        }
+
+        return placeKalshiOrder(
+          {
+            apiKey: process.env.KALSHI_API_KEY,
+            privateKey: process.env.KALSHI_PRIVATE_KEY,
+          },
+          input
+        );
+      }),
+
+    // Get Kalshi positions
+    getKalshiPositions: protectedProcedure.query(async () => {
+      const { getKalshiPositions } = await import('./integrations/kalshiTrading');
+      
+      if (!process.env.KALSHI_API_KEY || !process.env.KALSHI_PRIVATE_KEY) {
+        return [];
+      }
+
+      return getKalshiPositions({
+        apiKey: process.env.KALSHI_API_KEY,
+        privateKey: process.env.KALSHI_PRIVATE_KEY,
+      });
+    }),
+
+    // Get Kalshi orders
+    getKalshiOrders: protectedProcedure
+      .input(z.object({ status: z.enum(['resting', 'canceled', 'executed']).optional() }).optional())
+      .query(async ({ input }) => {
+        const { getKalshiOrders } = await import('./integrations/kalshiTrading');
+        
+        if (!process.env.KALSHI_API_KEY || !process.env.KALSHI_PRIVATE_KEY) {
+          return [];
+        }
+
+        return getKalshiOrders(
+          {
+            apiKey: process.env.KALSHI_API_KEY,
+            privateKey: process.env.KALSHI_PRIVATE_KEY,
+          },
+          input?.status
+        );
+      }),
+
+    // Cancel Kalshi order
+    cancelKalshiOrder: protectedProcedure
+      .input(z.object({ orderId: z.string() }))
+      .mutation(async ({ input }) => {
+        const { cancelKalshiOrder } = await import('./integrations/kalshiTrading');
+        
+        if (!process.env.KALSHI_API_KEY || !process.env.KALSHI_PRIVATE_KEY) {
+          throw new Error('Kalshi credentials not configured');
+        }
+
+        await cancelKalshiOrder(
+          {
+            apiKey: process.env.KALSHI_API_KEY,
+            privateKey: process.env.KALSHI_PRIVATE_KEY,
+          },
+          input.orderId
+        );
+
+        return { success: true };
+      }),
+
+    // Place order on Polymarket
+    placePolymarketOrder: protectedProcedure
+      .input(z.object({
+        tokenId: z.string(),
+        price: z.number().min(0).max(1),
+        size: z.number().positive(),
+        side: z.enum(['BUY', 'SELL']),
+      }))
+      .mutation(async ({ input }) => {
+        const { placePolymarketOrder } = await import('./integrations/polymarketTrading');
+        
+        if (!process.env.POLYMARKET_API_KEY || !process.env.POLYMARKET_API_SECRET || !process.env.POLYMARKET_API_PASSPHRASE) {
+          throw new Error('Polymarket credentials not configured');
+        }
+
+        return placePolymarketOrder(
+          {
+            apiKey: process.env.POLYMARKET_API_KEY,
+            apiSecret: process.env.POLYMARKET_API_SECRET,
+            apiPassphrase: process.env.POLYMARKET_API_PASSPHRASE,
+          },
+          input
+        );
+      }),
+
+    // Get Polymarket positions
+    getPolymarketPositions: protectedProcedure.query(async () => {
+      const { getPolymarketPositions } = await import('./integrations/polymarketTrading');
+      
+      if (!process.env.POLYMARKET_API_KEY || !process.env.POLYMARKET_API_SECRET || !process.env.POLYMARKET_API_PASSPHRASE) {
+        return [];
+      }
+
+      return getPolymarketPositions({
+        apiKey: process.env.POLYMARKET_API_KEY,
+        apiSecret: process.env.POLYMARKET_API_SECRET,
+        apiPassphrase: process.env.POLYMARKET_API_PASSPHRASE,
+      });
+    }),
+  }),
+
   opportunities: router({
     // Get top opportunities
     top: publicProcedure

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, TrendingUp, Zap, Target, BarChart3, Clock, Sparkles } from "lucide-react";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { Link } from "wouter";
+import { ConnectWallet } from "@/components/ConnectWallet";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -22,6 +23,7 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-4">
+            <ConnectWallet />
             {isAuthenticated ? (
               <Link href="/dashboard">
                 <Button variant="default">Dashboard</Button>

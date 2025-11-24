@@ -21,6 +21,8 @@ import {
 import { APP_TITLE } from "@/const";
 import { Link } from "wouter";
 import { useState, useMemo } from "react";
+import { TradeModal } from "@/components/TradeModal";
+import { ConnectWallet } from "@/components/ConnectWallet";
 
 export default function DashboardEnhanced() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -91,6 +93,7 @@ export default function DashboardEnhanced() {
             </div>
           </Link>
           <div className="flex items-center gap-4">
+            <ConnectWallet />
             <Link href="/pricing">
               <Button variant="outline" size="sm" className="gap-2">
                 <Sparkles className="h-4 w-4" />
@@ -273,8 +276,22 @@ export default function DashboardEnhanced() {
 }
 
 function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; isLoadingMarkets?: boolean }) {
+  const [tradeModalOpen, setTradeModalOpen] = useState(false);
+  const [selectedMarket, setSelectedMarket] = useState<any>(null);
+  
   const event = opportunity.event;
   const matchedMarkets = opportunity.markets || [];
+  
+  const handleTradeClick = (market: any) => {
+    setSelectedMarket({
+      id: market.id,
+      title: market.question,
+      venue: market.venue,
+      probability: market.probability,
+      url: market.url,
+    });
+    setTradeModalOpen(true);
+  };
   const velocityColor = 
     event.velocity >= 80 ? "text-chart-3" :
     event.velocity >= 60 ? "text-primary" :
@@ -382,12 +399,23 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
                       </div>
                     )}
                   </div>
-                  <Button variant="ghost" size="sm" className="gap-1" asChild>
-                    <a href={match.market.url} target="_blank" rel="noopener noreferrer">
-                      View
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="gap-1"
+                      onClick={() => handleTradeClick(match.market)}
+                    >
+                      <Zap className="h-3 w-3" />
+                      Trade Now
+                    </Button>
+                    <Button variant="ghost" size="sm" className="gap-1" asChild>
+                      <a href={match.market.url} target="_blank" rel="noopener noreferrer">
+                        View
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -406,6 +434,11 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
           </Button>
         </div>
       )}
+      <TradeModal 
+        open={tradeModalOpen} 
+        onOpenChange={setTradeModalOpen} 
+        market={selectedMarket}
+      />
     </Card>
   );
 }
