@@ -21,34 +21,48 @@ export const appRouter = router({
 
   // News & Markets
   news: router({
-    // Get trending news events with matched markets
-    opportunities: publicProcedure
+    // Fast endpoint - just news, no matching
+    trending: publicProcedure
       .input(z.object({ limit: z.number().optional().default(10) }).optional())
+      .query(async ({ input }) => {
+        const { fetchTrendingEvents } = await import("./services/newsDetector");
+        return fetchTrendingEvents(input?.limit || 10, process.env.NEWSAPI_KEY);
+      }),
+    // Get trending news events with matched markets (optimized - only top 3)
+    opportunities: publicProcedure
+      .input(z.object({ limit: z.number().optional().default(3) }).optional())
       .query(async ({ input }) => {
         const { fetchTrendingEvents } = await import("./services/newsDetector");
         const { fetchAllMarkets } = await import("./services/marketAggregator");
         const { findMarketsForEvent } = await import("./services/marketMatcher");
 
-        // Fetch news events
-        const events = await fetchTrendingEvents(input?.limit || 10, process.env.NEWSAPI_KEY);
+        // Fetch only top events for matching (faster)
+        const limit = Math.min(input?.limit || 3, 5);
+        const events = await fetchTrendingEvents(limit, process.env.NEWSAPI_KEY);
 
-        // Fetch all available markets
-        const markets = await fetchAllMarkets(200);
+        // Fetch markets
+        const markets = await fetchAllMarkets(150);
 
-        // Match markets to events
+        // Match markets to events with timeout
         const opportunities = [];
         for (const event of events) {
-          const matchedMarkets = await findMarketsForEvent(
-            event.title,
-            event.keywords,
-            markets,
-            3
-          );
+          try {
+            const matchedMarkets = await Promise.race([
+              findMarketsForEvent(event.title, event.keywords, markets, 3),
+              new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 10000))
+            ]);
 
-          opportunities.push({
-            event,
-            markets: matchedMarkets,
-          });
+            opportunities.push({
+              event,
+              markets: matchedMarkets,
+            });
+          } catch (error) {
+            // If matching fails, still return event without markets
+            opportunities.push({
+              event,
+              markets: [],
+            });
+          }
         }
 
         return opportunities;

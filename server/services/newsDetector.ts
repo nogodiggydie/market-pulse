@@ -121,10 +121,25 @@ async function fetchFromNewsAPI(limit: number, apiKey: string): Promise<NewsEven
     const text = `${article.title || ""} ${article.description || ""}`.toLowerCase();
     const keywords = extractKeywords(text);
 
-    // Calculate velocity (simple heuristic based on publishedAt)
+    // Calculate velocity (multi-factor scoring)
     const publishedAt = new Date(article.publishedAt);
-    const timeDiffMinutes = (Date.now() - publishedAt.getTime()) / (1000 * 60);
-    const velocity = Math.max(0, Math.min(100, 100 - (timeDiffMinutes / 120) * 100)); // Decay over 2 hours
+    const timeDiffHours = (Date.now() - publishedAt.getTime()) / (1000 * 60 * 60);
+    
+    // Recency score (decay over 24 hours instead of 2)
+    const recencyScore = Math.max(0, Math.min(100, 100 - (timeDiffHours / 24) * 100));
+    
+    // Source authority score (tier-based)
+    const sourceAuthority = getSourceAuthority(article.source?.name || "");
+    
+    // Keyword density (more focused articles score higher)
+    const keywordDensity = Math.min(100, keywords.length * 10);
+    
+    // Combined velocity (weighted average)
+    const velocity = Math.round(
+      recencyScore * 0.4 + 
+      sourceAuthority * 0.4 + 
+      keywordDensity * 0.2
+    );
 
     // Categorize based on keywords
     const category = categorizeEvent(keywords);
@@ -178,13 +193,30 @@ function extractKeywords(text: string): string[] {
 }
 
 /**
+ * Get source authority score based on source name
+ */
+function getSourceAuthority(sourceName: string): number {
+  const tier1 = ["bloomberg", "reuters", "wsj", "financial times", "cnbc"];
+  const tier2 = ["techcrunch", "cnn", "bbc", "nyt", "washington post"];
+  const tier3 = ["forbes", "business insider", "yahoo", "marketwatch"];
+  
+  const lowerSource = sourceName.toLowerCase();
+  
+  if (tier1.some(s => lowerSource.includes(s))) return 90;
+  if (tier2.some(s => lowerSource.includes(s))) return 75;
+  if (tier3.some(s => lowerSource.includes(s))) return 60;
+  
+  return 50; // Default for unknown sources
+}
+
+/**
  * Categorize event based on keywords
  */
 function categorizeEvent(keywords: string[]): string {
-  const cryptoKeywords = new Set(["bitcoin", "ethereum", "crypto", "cryptocurrency", "blockchain"]);
-  const politicsKeywords = new Set(["election", "president", "congress", "senate", "government", "policy", "vote"]);
-  const economyKeywords = new Set(["economy", "federal", "reserve", "inflation", "rates", "jobs"]);
-  const techKeywords = new Set(["tech", "startup", "silicon", "valley", "software", "google", "apple"]);
+  const cryptoKeywords = new Set(["bitcoin", "ethereum", "crypto", "cryptocurrency", "blockchain", "defi", "nft", "solana", "cardano"]);
+  const politicsKeywords = new Set(["election", "president", "congress", "senate", "government", "policy", "vote", "political", "campaign", "democrat", "republican"]);
+  const economyKeywords = new Set(["economy", "federal", "reserve", "inflation", "rates", "jobs", "market", "stock", "trading", "investor", "wall", "street", "recession"]);
+  const techKeywords = new Set(["tech", "startup", "silicon", "valley", "software", "google", "apple", "microsoft", "amazon", "meta", "nvidia", "openai", "chatgpt"]);
 
   const keywordSet = new Set(keywords);
 

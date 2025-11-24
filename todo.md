@@ -112,3 +112,14 @@
 - [x] Implement market syncing to database
 - [x] Update news-to-market matching with live data
 - [x] Test all API integrations
+
+## Dashboard Enhancement
+- [x] Fix loading/pending state issues
+- [x] Add live data visualizations and charts
+- [x] Add velocity trend charts
+- [ ] Add market distribution by venue
+- [x] Add category breakdown pie chart
+- [x] Add real-time metrics widgets
+- [ ] Add top opportunities leaderboard
+- [ ] Add market sentiment indicators
+- [x] Improve loading states and animations
