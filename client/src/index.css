@@ -196,4 +196,19 @@
       max-width: 1280px; /* Standard content width */
     }
   }
+
+  /* Marquee animation for ticker */
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    display: inline-block;
+    animation: marquee 30s linear infinite;
+  }
 }

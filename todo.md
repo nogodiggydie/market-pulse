@@ -35,19 +35,19 @@
 - [x] Add loading states and skeletons
 
 ## Frontend - Market of the Hour
-- [ ] Create featured market card component
+- [x] Create featured market card component
 - [ ] Add AI-generated insights display
-- [ ] Show velocity and momentum indicators
-- [ ] Implement auto-refresh
+- [x] Show velocity and momentum indicators
+- [x] Implement auto-refresh
 - [ ] Add share functionality
 
 ## Frontend - Streaming Dashboard
-- [ ] Create full-screen streaming view (1920x1080)
-- [ ] Implement auto-rotating content (15s intervals)
-- [ ] Add glass-morphism effects
-- [ ] Show live market updates
-- [ ] Add ticker-style news feed
-- [ ] Optimize for OBS/streaming software
+- [x] Create full-screen streaming view (1920x1080)
+- [x] Implement auto-rotating content (15s intervals)
+- [x] Add glass-morphism effects
+- [x] Show live market updates
+- [x] Add ticker-style news feed
+- [x] Optimize for OBS/streaming software
 
 ## Authentication
 - [ ] Configure Google OAuth
@@ -64,15 +64,15 @@
 - [ ] Add loading animations
 
 ## Testing
-- [ ] Write tests for news detection
+- [x] Write tests for news detection
 - [ ] Write tests for market matching
 - [ ] Write tests for opportunity scoring
-- [ ] Test real-time streaming
+- [x] Test real-time streaming
 - [ ] Test authentication flow
 
 ## Deployment
-- [ ] Create Dockerfile
-- [ ] Set up docker-compose.yml
-- [ ] Configure environment variables
-- [ ] Add production build scripts
-- [ ] Create deployment documentation
+- [x] Create Dockerfile
+- [x] Set up docker-compose.yml
+- [x] Configure environment variables
+- [x] Add production build scripts
+- [x] Create deployment documentation
