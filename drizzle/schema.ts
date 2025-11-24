@@ -25,4 +25,106 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Prediction market venues (Kalshi, Polymarket, Manifold)
+ */
+export const venues = mysqlTable("venues", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 64 }).notNull().unique(),
+  apiBase: text("apiBase"),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Venue = typeof venues.$inferSelect;
+export type InsertVenue = typeof venues.$inferInsert;
+
+/**
+ * Prediction markets from various venues
+ */
+export const markets = mysqlTable("markets", {
+  id: int("id").autoincrement().primaryKey(),
+  venueId: int("venueId").notNull(),
+  externalId: varchar("externalId", { length: 255 }).notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 64 }),
+  status: mysqlEnum("status", ["open", "active", "closed", "resolved"]).default("open").notNull(),
+  closeTime: timestamp("closeTime"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Market = typeof markets.$inferSelect;
+export type InsertMarket = typeof markets.$inferInsert;
+
+/**
+ * Market price quotes (snapshots over time)
+ */
+export const quotes = mysqlTable("quotes", {
+  id: int("id").autoincrement().primaryKey(),
+  marketId: int("marketId").notNull(),
+  priceYes: int("priceYes"),
+  priceNo: int("priceNo"),
+  liquidity: int("liquidity"),
+  volume: int("volume"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type Quote = typeof quotes.$inferSelect;
+export type InsertQuote = typeof quotes.$inferInsert;
+
+/**
+ * Trending news events from NewsAPI or demo data
+ */
+export const newsEvents = mysqlTable("newsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  keywords: text("keywords"),
+  source: varchar("source", { length: 64 }).notNull(),
+  velocity: int("velocity").notNull(),
+  category: varchar("category", { length: 64 }).notNull(),
+  url: text("url"),
+  publishedAt: timestamp("publishedAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type NewsEvent = typeof newsEvents.$inferSelect;
+export type InsertNewsEvent = typeof newsEvents.$inferInsert;
+
+/**
+ * Market-to-event matches with relevance scores
+ */
+export const marketMatches = mysqlTable("marketMatches", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  marketId: int("marketId").notNull(),
+  relevanceScore: int("relevanceScore").notNull(),
+  reasoning: text("reasoning"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MarketMatch = typeof marketMatches.$inferSelect;
+export type InsertMarketMatch = typeof marketMatches.$inferInsert;
+
+/**
+ * Scored opportunities (news + market + signals)
+ */
+export const opportunities = mysqlTable("opportunities", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  marketId: int("marketId").notNull(),
+  totalScore: int("totalScore").notNull(),
+  relevanceScore: int("relevanceScore").notNull(),
+  velocityScore: int("velocityScore").notNull(),
+  liquidityScore: int("liquidityScore").notNull(),
+  urgencyScore: int("urgencyScore").notNull(),
+  momentumScore: int("momentumScore").notNull(),
+  momentum1h: int("momentum1h"),
+  reason: text("reason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Opportunity = typeof opportunities.$inferSelect;
+export type InsertOpportunity = typeof opportunities.$inferInsert;
