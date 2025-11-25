@@ -24,11 +24,16 @@ import { APP_TITLE } from "@/const";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useMarketPrices } from "@/hooks/useMarketPrices";
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedVenue, setSelectedVenue] = useState<string | null>(null);
+  const [displayedMarkets, setDisplayedMarkets] = useState<Array<{ venue: string; id: string }>>([]);
+  
+  // Real-time market price updates via WebSocket
+  const { prices, connected: wsConnected, getPrice } = useMarketPrices(displayedMarkets);
 
   // Fetch trending news fast
   const { data: newsEvents, isLoading: newsLoading, refetch: refetchNews } = trpc.news.trending.useQuery({ limit: 10 });
@@ -209,6 +214,8 @@ export default function Dashboard() {
                   opportunity={{ event, markets }} 
                   isLoadingMarkets={oppsLoading && markets.length === 0}
                   selectedVenue={selectedVenue}
+                  onMarketsDisplayed={setDisplayedMarkets}
+                  getPrice={getPrice}
                 />
               );
             })}
@@ -229,7 +236,7 @@ export default function Dashboard() {
   );
 }
 
-function NewsEventCard({ opportunity, isLoadingMarkets, selectedVenue }: { opportunity: any; isLoadingMarkets?: boolean; selectedVenue?: string | null }) {
+function NewsEventCard({ opportunity, isLoadingMarkets, selectedVenue, onMarketsDisplayed, getPrice }: { opportunity: any; isLoadingMarkets?: boolean; selectedVenue?: string | null; onMarketsDisplayed?: (markets: Array<{ venue: string; id: string }>) => void; getPrice?: (venue: string, marketId: string) => { probability: number; change: number; timestamp: number } | undefined }) {
   const event = opportunity.event;
   const [localMarkets, setLocalMarkets] = useState<any[]>(opportunity.markets || []);
   const [showMarkets, setShowMarkets] = useState(false);
@@ -254,6 +261,17 @@ function NewsEventCard({ opportunity, isLoadingMarkets, selectedVenue }: { oppor
       setLocalMarkets(matchEventQuery.data);
     }
   }, [matchEventQuery.data]);
+
+  // Notify parent of displayed markets for WebSocket subscription
+  useEffect(() => {
+    if (localMarkets.length > 0 && onMarketsDisplayed) {
+      const markets = localMarkets.map((m: any) => ({
+        venue: m.market.venue,
+        id: m.market.id,
+      }));
+      onMarketsDisplayed(markets);
+    }
+  }, [localMarkets, onMarketsDisplayed]);
 
   // AI analysis query
   const analysisQuery = trpc.news.analyzeEvent.useQuery(
@@ -384,12 +402,35 @@ function NewsEventCard({ opportunity, isLoadingMarkets, selectedVenue }: { oppor
                       </Badge>
                     </div>
                     <p className="font-medium text-sm mb-1">{match.market.question}</p>
-                    {match.market.probability && (
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <DollarSign className="h-3 w-3" />
-                        {(match.market.probability * 100).toFixed(1)}% probability
-                      </div>
-                    )}
+                    {(() => {
+                      const livePrice = getPrice?.(match.market.venue, match.market.id);
+                      const displayProbability = livePrice?.probability ?? match.market.probability;
+                      const change = livePrice?.change;
+                      
+                      return displayProbability && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <DollarSign className="h-3 w-3 text-muted-foreground" />
+                          <span className={livePrice ? "font-semibold text-primary" : "text-muted-foreground"}>
+                            {(displayProbability * 100).toFixed(1)}% probability
+                          </span>
+                          {change !== undefined && change !== 0 && (
+                            <Badge 
+                              variant={change > 0 ? "default" : "destructive"}
+                              className="text-xs gap-0.5"
+                            >
+                              {change > 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
+                              {Math.abs(change * 100).toFixed(2)}%
+                            </Badge>
+                          )}
+                          {livePrice && (
+                            <Badge variant="outline" className="text-xs gap-1">
+                              <Zap className="h-2.5 w-2.5" />
+                              LIVE
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <Button variant="ghost" size="sm" className="gap-1" asChild>
                     <a href={match.market.url} target="_blank" rel="noopener noreferrer">
