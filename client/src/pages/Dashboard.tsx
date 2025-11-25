@@ -28,6 +28,7 @@ import { toast } from "sonner";
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedVenue, setSelectedVenue] = useState<string | null>(null);
 
   // Fetch trending news fast
   const { data: newsEvents, isLoading: newsLoading, refetch: refetchNews } = trpc.news.trending.useQuery({ limit: 10 });
@@ -130,7 +131,7 @@ export default function Dashboard() {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-6 flex-wrap">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Filter className="h-4 w-4" />
             Category:
@@ -147,7 +148,24 @@ export default function Dashboard() {
               </Button>
             ))}
           </div>
-          <div className="ml-auto flex gap-2">
+          
+          <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4">
+            <DollarSign className="h-4 w-4" />
+            Venue:
+          </div>
+          <div className="flex gap-2">
+            {["all", "kalshi", "polymarket", "manifold"].map((venue) => (
+              <Button
+                key={venue}
+                variant={selectedVenue === venue || (venue === "all" && !selectedVenue) ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedVenue(venue === "all" ? null : venue)}
+              >
+                {venue.charAt(0).toUpperCase() + venue.slice(1)}
+              </Button>
+            ))}
+          </div>
+          <div className="ml-auto flex gap-2 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -190,6 +208,7 @@ export default function Dashboard() {
                   key={idx} 
                   opportunity={{ event, markets }} 
                   isLoadingMarkets={oppsLoading && markets.length === 0}
+                  selectedVenue={selectedVenue}
                 />
               );
             })}
@@ -210,7 +229,7 @@ export default function Dashboard() {
   );
 }
 
-function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; isLoadingMarkets?: boolean }) {
+function NewsEventCard({ opportunity, isLoadingMarkets, selectedVenue }: { opportunity: any; isLoadingMarkets?: boolean; selectedVenue?: string | null }) {
   const event = opportunity.event;
   const [localMarkets, setLocalMarkets] = useState<any[]>(opportunity.markets || []);
   const [showMarkets, setShowMarkets] = useState(false);
@@ -259,7 +278,10 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
     }
   }, [analysisQuery.data]);
 
-  const matchedMarkets = localMarkets;
+  // Filter markets by selected venue
+  const matchedMarkets = selectedVenue 
+    ? localMarkets.filter((m: any) => m.market.venue.toLowerCase() === selectedVenue.toLowerCase())
+    : localMarkets;
   const isLoadingMarketsLocal = matchEventQuery.isLoading && showMarkets;
   const isLoadingAnalysis = analysisQuery.isLoading && showAnalysis;
   const velocityColor = 

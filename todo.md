@@ -276,3 +276,14 @@
 - [x] Validate Kalshi markets appear when relevant
 
 **Status**: Kalshi API is fully integrated and working. Uses public endpoints (no authentication needed for market data). Kalshi markets will appear in LLM matching results when relevant markets exist for the news topic. Current news topics (Nvidia, tech) don't have Kalshi markets, which is expected - Kalshi focuses on politics, economy, and current events.
+
+
+## Market Venue Filters
+- [ ] Add venue filter buttons to dashboard header (CODE WRITTEN lines 152-167 but NOT RENDERING)
+- [x] Implement venue filter state management (selectedVenue state added)
+- [x] Apply venue filter to matched markets display (filtering logic implemented)
+- [ ] Debug why venue filter UI is not rendering in browser
+- [ ] Test venue filtering with multiple news events
+- [ ] Persist venue filter selection in URL params
+
+**Status**: Backend filtering logic fully implemented. Frontend UI code written in Dashboard.tsx but buttons are not appearing in DOM despite clearing Vite cache and restarting server. Category filters work fine, but venue filters (which come right after them in the same parent div) don't render. Needs React/Vite build pipeline investigation.
