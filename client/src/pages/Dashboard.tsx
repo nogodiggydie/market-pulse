@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { APP_TITLE } from "@/const";
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -27,6 +28,18 @@ export default function Dashboard() {
   
   // Fetch matched markets for top 3 (slower)
   const { data: opportunities, isLoading: oppsLoading } = trpc.news.opportunities.useQuery({ limit: 3 });
+
+  // Warm cache mutation
+  const warmCacheMutation = trpc.news.warmCache.useMutation({
+    onSuccess: (result) => {
+      toast.success(
+        `Cache warmed! ${result.warmed} events cached, ${result.skipped} already cached, ${result.failed} failed`
+      );
+    },
+    onError: (error) => {
+      toast.error(`Failed to warm cache: ${error.message}`);
+    },
+  });
 
   if (authLoading) {
     return <DashboardSkeleton />;
@@ -122,15 +135,27 @@ export default function Dashboard() {
               </Button>
             ))}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ml-auto gap-2"
-            onClick={() => refetchNews()}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
+          <div className="ml-auto flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => warmCacheMutation.mutate({ velocityThreshold: 60 })}
+              disabled={warmCacheMutation.isPending}
+            >
+              <Zap className="h-4 w-4" />
+              {warmCacheMutation.isPending ? "Warming..." : "Warm Cache"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2"
+              onClick={() => refetchNews()}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* News Feed */}
@@ -175,7 +200,30 @@ export default function Dashboard() {
 
 function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; isLoadingMarkets?: boolean }) {
   const event = opportunity.event;
-  const matchedMarkets = opportunity.markets || [];
+  const [localMarkets, setLocalMarkets] = useState<any[]>(opportunity.markets || []);
+  const [showMarkets, setShowMarkets] = useState(false);
+
+  // Match markets on-demand
+  const matchEventQuery = trpc.news.matchEvent.useQuery(
+    {
+      title: event.title,
+      keywords: event.keywords,
+      limit: 3,
+    },
+    {
+      enabled: showMarkets && localMarkets.length === 0,
+    }
+  );
+
+  // Update local markets when query succeeds
+  useEffect(() => {
+    if (matchEventQuery.data && matchEventQuery.data.length > 0) {
+      setLocalMarkets(matchEventQuery.data);
+    }
+  }, [matchEventQuery.data]);
+
+  const matchedMarkets = localMarkets;
+  const isLoadingMarketsLocal = matchEventQuery.isLoading && showMarkets;
   const velocityColor = 
     event.velocity >= 80 ? "text-chart-3" :
     event.velocity >= 60 ? "text-primary" :
@@ -238,7 +286,7 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
       </div>
 
       {/* Matched Markets Section */}
-      {isLoadingMarkets ? (
+      {isLoadingMarketsLocal ? (
         <div className="mt-6 pt-6 border-t border-border/40">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="h-4 w-4 text-primary" />
@@ -297,16 +345,27 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
       )}
 
       {/* Action Buttons */}
-      {event.url && (
-        <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex gap-2">
+        {!showMarkets && matchedMarkets.length === 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => setShowMarkets(true)}
+          >
+            <TrendingUp className="h-4 w-4" />
+            Show Related Markets
+          </Button>
+        )}
+        {event.url && (
           <Button variant="outline" size="sm" className="gap-2" asChild>
             <a href={event.url} target="_blank" rel="noopener noreferrer">
               Read Full Story
               <ExternalLink className="h-3 w-3" />
             </a>
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </Card>
   );
 }

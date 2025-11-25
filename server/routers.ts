@@ -103,6 +103,24 @@ export const appRouter = router({
         return matchedMarkets;
       }),
 
+    // Warm cache for high-velocity events (background job)
+    warmCache: publicProcedure
+      .input(z.object({
+        velocityThreshold: z.number().optional().default(60),
+      }).optional())
+      .mutation(async ({ input }) => {
+        const { fetchTrendingEvents } = await import("./services/newsDetector");
+        const { warmCacheForHighVelocityEvents } = await import("./services/cacheWarming");
+
+        const events = await fetchTrendingEvents(20, process.env.NEWSAPI_KEY);
+        const result = await warmCacheForHighVelocityEvents(
+          events,
+          input?.velocityThreshold || 60
+        );
+
+        return result;
+      }),
+
     // Get Market of the Hour (top opportunity)
     marketOfHour: publicProcedure.query(async () => {
       const { fetchTrendingEvents } = await import("./services/newsDetector");

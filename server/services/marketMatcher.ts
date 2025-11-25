@@ -54,28 +54,35 @@ export async function findMarketsForEvent(
   }
 
   // Sort by keyword score and take top candidates for LLM analysis
+  // Reduced from 20 to 5 to avoid timeout (each LLM call takes 10-30s)
   candidates.sort((a, b) => b.keywordScore - a.keywordScore);
-  const topCandidates = candidates.slice(0, Math.min(20, candidates.length));
+  const topCandidates = candidates.slice(0, Math.min(5, candidates.length));
 
   // Second pass: LLM relevance scoring
   const results: MarketCandidate[] = [];
 
+  console.log(`Scoring ${topCandidates.length} candidates with LLM...`);
   for (const candidate of topCandidates) {
     const { market } = candidate;
 
-    const relevanceScore = await scoreMarketRelevance(
-      eventTitle,
-      eventKeywords,
-      market.question,
-      market.description || ""
-    );
+    try {
+      const relevanceScore = await scoreMarketRelevance(
+        eventTitle,
+        eventKeywords,
+        market.question,
+        market.description || ""
+      );
 
-    if (relevanceScore > 60) {
-      // Only include if >60% relevant
-      results.push({
-        market,
-        relevanceScore,
-      });
+      if (relevanceScore > 60) {
+        // Only include if >60% relevant
+        results.push({
+          market,
+          relevanceScore,
+        });
+      }
+    } catch (error) {
+      console.error(`Failed to score market "${market.question}":`, error);
+      // Continue with other candidates
     }
   }
 

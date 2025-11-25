@@ -198,3 +198,19 @@
 - [x] Add cache expiration logic (5-minute TTL)
 - [x] Test cache hit and miss scenarios
 - [x] Verify performance improvement
+
+## Cache Warming for High-Velocity Events
+- [ ] Create cache warming service module
+- [ ] Implement background job to warm cache for velocity > 60 events
+- [ ] Add warming status tracking (last warmed timestamp)
+- [ ] Integrate warming trigger when new high-velocity events detected
+- [ ] Add warming progress logging
+- [ ] Test cache warming with high-velocity events
+- [ ] Verify instant results after warming
+
+## Bug: Markets Not Displaying
+- [x] Debug matchEvent endpoint to see why markets aren't returned
+- [x] Check if LLM matching is completing successfully
+- [x] Verify market data is being fetched correctly
+- [x] Fix UI display of matched markets
+- [x] Test end-to-end market matching flow
