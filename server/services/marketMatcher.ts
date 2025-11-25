@@ -73,8 +73,8 @@ export async function findMarketsForEvent(
         market.description || ""
       );
 
-      if (relevanceScore > 60) {
-        // Only include if >60% relevant
+      if (relevanceScore > 40) {
+        // Only include if >40% relevant (lowered from 60 to get more results)
         results.push({
           market,
           relevanceScore,

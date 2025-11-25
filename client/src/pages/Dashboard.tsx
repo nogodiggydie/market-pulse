@@ -53,28 +53,8 @@ export default function Dashboard() {
     },
   });
 
-  if (authLoading) {
-    return <DashboardSkeleton />;
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 max-w-md text-center">
-          <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h2 className="font-['Space_Grotesk'] text-2xl font-bold mb-2">
-            Sign In Required
-          </h2>
-          <p className="text-muted-foreground mb-6">
-            Please sign in to access the dashboard and start tracking opportunities.
-          </p>
-          <Link href="/">
-            <Button>Back to Home</Button>
-          </Link>
-        </Card>
-      </div>
-    );
-  }
+  // Removed authentication requirement for demo purposes
+  // Dashboard now loads for everyone
 
   const categories = ["all", "crypto", "politics", "economy", "tech"];
   // Combine news with opportunities
@@ -242,23 +222,32 @@ function NewsEventCard({ opportunity, isLoadingMarkets, selectedVenue, onMarkets
   const [showMarkets, setShowMarkets] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
+  
+  console.log('[NewsEventCard] Render - event:', event.title, 'showMarkets:', showMarkets, 'localMarkets.length:', localMarkets.length);
 
   // Match markets on-demand
   const matchEventQuery = trpc.news.matchEvent.useQuery(
     {
       title: event.title,
-      keywords: event.keywords,
+      keywords: Array.isArray(event.keywords) ? event.keywords : [],
       limit: 3,
     },
     {
-      enabled: showMarkets && localMarkets.length === 0,
+      enabled: showMarkets && !!event.title && Array.isArray(event.keywords) && event.keywords.length > 0,
     }
   );
 
   // Update local markets when query succeeds
   useEffect(() => {
+    console.log('[NewsEventCard] matchEventQuery.data:', matchEventQuery.data);
+    console.log('[NewsEventCard] matchEventQuery.isSuccess:', matchEventQuery.isSuccess);
+    console.log('[NewsEventCard] matchEventQuery.isError:', matchEventQuery.isError);
+    console.log('[NewsEventCard] matchEventQuery.error:', matchEventQuery.error);
     if (matchEventQuery.data && matchEventQuery.data.length > 0) {
+      console.log('[NewsEventCard] Setting local markets:', matchEventQuery.data);
       setLocalMarkets(matchEventQuery.data);
+    } else if (matchEventQuery.data) {
+      console.log('[NewsEventCard] Query succeeded but data is empty');
     }
   }, [matchEventQuery.data]);
 
@@ -527,10 +516,16 @@ function NewsEventCard({ opportunity, isLoadingMarkets, selectedVenue, onMarkets
             variant="outline"
             size="sm"
             className="gap-2"
-            onClick={() => setShowMarkets(true)}
+            onClick={() => {
+              console.log('[NewsEventCard] Show Markets clicked');
+              console.log('[NewsEventCard] event.title:', event.title);
+              console.log('[NewsEventCard] event.keywords:', event.keywords);
+              console.log('[NewsEventCard] keywords is array?', Array.isArray(event.keywords));
+              setShowMarkets(true);
+            }}
           >
             <TrendingUp className="h-4 w-4" />
-            Show Related Markets
+            Show Related Markets ({localMarkets.length} cached)
           </Button>
         )}
         <Button

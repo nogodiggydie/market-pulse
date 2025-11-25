@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM marketCache;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2TG3y4sYk3BCp1h.root --database RvCJjYwGhWDFrembp3fz96 --execute DELETE FROM marketCache;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 54
+}

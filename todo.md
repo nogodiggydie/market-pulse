@@ -214,6 +214,8 @@
 - [x] Verify market data is being fetched correctly
 - [x] Fix UI display of matched markets
 - [x] Test end-to-end market matching flow
+- [x] FIXED: Lowered relevance threshold from 60% to 40%
+- [x] VERIFIED: Production build shows markets correctly (Anthropic event → 1 Manifold market)
 
 ## My Positions Feature
 - [x] Add My Positions link to header navigation
@@ -308,3 +310,11 @@
 - [ ] Optimize performance for many simultaneous subscriptions
 
 **Status**: Full WebSocket implementation complete with Socket.IO server, polling service, and client hook. Markets display live prices with change indicators and LIVE badges. All 6 tests passing. Ready for browser testing.
+
+
+## Critical Bug: Frontend Build/Cache Issue Blocking Market Display
+- [x] Dev server not loading Dashboard.tsx changes despite file edits, server restarts, cache clears
+- [x] Markets API works perfectly (returns markets with relevance scores)
+- [x] Test with production build to bypass dev server caching
+- [x] RESOLVED: Production build works perfectly - issue was dev server HMR caching
+- [x] SOLUTION: Use production builds for testing, or clear node_modules/.vite before dev server restarts
