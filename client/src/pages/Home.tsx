@@ -25,9 +25,14 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <ConnectWallet />
             {isAuthenticated ? (
-              <Link href="/dashboard">
-                <Button variant="default">Dashboard</Button>
-              </Link>
+              <>
+                <Link href="/positions">
+                  <Button variant="ghost" size="sm">My Positions</Button>
+                </Link>
+                <Link href="/dashboard">
+                  <Button variant="default">Dashboard</Button>
+                </Link>
+              </>
             ) : (
               <>
                 <a href={getLoginUrl()}>

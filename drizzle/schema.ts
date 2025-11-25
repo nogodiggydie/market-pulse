@@ -161,3 +161,46 @@ export const marketCache = mysqlTable("marketCache", {
 
 export type MarketCache = typeof marketCache.$inferSelect;
 export type InsertMarketCache = typeof marketCache.$inferInsert;
+
+/**
+ * User positions (trades) in prediction markets
+ * Tracks active and closed positions across all venues
+ */
+export const positions = mysqlTable("positions", {
+  id: int("id").autoincrement().primaryKey(),
+  /** User who owns this position */
+  userId: int("userId").notNull(),
+  /** Venue where the trade was made (Kalshi, Polymarket, Manifold) */
+  venue: varchar("venue", { length: 64 }).notNull(),
+  /** Market question/title */
+  question: text("question").notNull(),
+  /** External market ID from the venue */
+  externalMarketId: varchar("externalMarketId", { length: 255 }),
+  /** Market URL for direct access */
+  marketUrl: text("marketUrl"),
+  /** Position side (YES or NO) */
+  side: mysqlEnum("side", ["YES", "NO"]).notNull(),
+  /** Entry price (probability 0-100) */
+  entryPrice: int("entryPrice").notNull(),
+  /** Current price (probability 0-100) - updated manually or via API */
+  currentPrice: int("currentPrice"),
+  /** Quantity/size of position */
+  quantity: int("quantity").notNull(),
+  /** Position status */
+  status: mysqlEnum("status", ["open", "closed", "expired"]).default("open").notNull(),
+  /** Exit price if closed */
+  exitPrice: int("exitPrice"),
+  /** Profit/loss in dollars */
+  pnl: int("pnl"),
+  /** Notes or reasoning for the trade */
+  notes: text("notes"),
+  /** Date position was opened */
+  openedAt: timestamp("openedAt").defaultNow().notNull(),
+  /** Date position was closed */
+  closedAt: timestamp("closedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Position = typeof positions.$inferSelect;
+export type InsertPosition = typeof positions.$inferInsert;

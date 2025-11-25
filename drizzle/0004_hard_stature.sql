@@ -1,0 +1,21 @@
+CREATE TABLE `positions` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`venue` varchar(64) NOT NULL,
+	`question` text NOT NULL,
+	`externalMarketId` varchar(255),
+	`marketUrl` text,
+	`side` enum('YES','NO') NOT NULL,
+	`entryPrice` int NOT NULL,
+	`currentPrice` int,
+	`quantity` int NOT NULL,
+	`status` enum('open','closed','expired') NOT NULL DEFAULT 'open',
+	`exitPrice` int,
+	`pnl` int,
+	`notes` text,
+	`openedAt` timestamp NOT NULL DEFAULT (now()),
+	`closedAt` timestamp,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `positions_id` PRIMARY KEY(`id`)
+);

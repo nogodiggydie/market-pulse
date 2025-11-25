@@ -91,6 +91,12 @@ export default function Dashboard() {
             </div>
           </Link>
           <div className="flex items-center gap-4">
+            <Link href="/positions">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <TrendingUp className="h-4 w-4" />
+                My Positions
+              </Button>
+            </Link>
             <Link href="/stream">
               <Button variant="outline" size="sm" className="gap-2">
                 <Zap className="h-4 w-4" />

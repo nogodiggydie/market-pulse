@@ -347,6 +347,86 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     }),
   }),
 
+  // User positions management
+  positions: router({
+    // Get all positions for current user
+    list: protectedProcedure
+      .input(z.object({ status: z.enum(["open", "closed", "expired"]).optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const { getUserPositions } = await import("./positions");
+        return getUserPositions(ctx.user.id, input?.status);
+      }),
+
+    // Get single position by ID
+    get: protectedProcedure
+      .input(z.number())
+      .query(async ({ ctx, input }) => {
+        const { getPositionById } = await import("./positions");
+        return getPositionById(input, ctx.user.id);
+      }),
+
+    // Create new position
+    create: protectedProcedure
+      .input(z.object({
+        venue: z.string(),
+        question: z.string(),
+        externalMarketId: z.string().optional(),
+        marketUrl: z.string().optional(),
+        side: z.enum(["YES", "NO"]),
+        entryPrice: z.number().min(0).max(100),
+        currentPrice: z.number().min(0).max(100).optional(),
+        quantity: z.number().positive(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createPosition } = await import("./positions");
+        return createPosition({
+          userId: ctx.user.id,
+          ...input,
+        });
+      }),
+
+    // Update position
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        currentPrice: z.number().min(0).max(100).optional(),
+        quantity: z.number().positive().optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { updatePosition } = await import("./positions");
+        const { id, ...updates } = input;
+        return updatePosition(id, ctx.user.id, updates);
+      }),
+
+    // Close position
+    close: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        exitPrice: z.number().min(0).max(100),
+        pnl: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { closePosition } = await import("./positions");
+        return closePosition(input.id, ctx.user.id, input.exitPrice, input.pnl);
+      }),
+
+    // Delete position
+    delete: protectedProcedure
+      .input(z.number())
+      .mutation(async ({ ctx, input }) => {
+        const { deletePosition } = await import("./positions");
+        return deletePosition(input, ctx.user.id);
+      }),
+
+    // Get P&L summary
+    summary: protectedProcedure.query(async ({ ctx }) => {
+      const { calculateTotalPnL } = await import("./positions");
+      return calculateTotalPnL(ctx.user.id);
+    }),
+  }),
+
   opportunities: router({
     // Get top opportunities
     top: publicProcedure

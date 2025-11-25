@@ -214,3 +214,13 @@
 - [x] Verify market data is being fetched correctly
 - [x] Fix UI display of matched markets
 - [x] Test end-to-end market matching flow
+
+## My Positions Feature
+- [x] Add My Positions link to header navigation
+- [x] Create positions database table (user_id, market_id, venue, question, entry_price, quantity, status)
+- [x] Add positions CRUD endpoints (create, read, update, delete)
+- [x] Create Positions page component (already exists, shows Kalshi positions)
+- [x] Display active positions with P&L tracking
+- [ ] Add position entry form (for manual position tracking)
+- [ ] Add position close/edit functionality
+- [ ] Test positions CRUD operations
