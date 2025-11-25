@@ -186,5 +186,15 @@
 - [x] Create single-event matching endpoint
 - [x] Add Show Markets button to event cards
 - [x] Implement loading state for individual events
-- [ ] Cache matched results per event
+- [x] Cache matched results per event
 - [x] Test on-demand matching flow
+
+## Market Caching with TTL
+- [x] Design cache schema (event hash, matched markets JSON, timestamp)
+- [x] Add market_cache table to database schema
+- [x] Push database migration
+- [x] Implement cache lookup in matchEvent endpoint
+- [x] Implement cache storage after LLM matching
+- [x] Add cache expiration logic (5-minute TTL)
+- [x] Test cache hit and miss scenarios
+- [x] Verify performance improvement

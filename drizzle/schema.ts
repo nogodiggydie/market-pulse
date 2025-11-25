@@ -140,3 +140,24 @@ export const opportunities = mysqlTable("opportunities", {
 
 export type Opportunity = typeof opportunities.$inferSelect;
 export type InsertOpportunity = typeof opportunities.$inferInsert;
+
+/**
+ * Market matching cache with TTL (5 minutes)
+ * Stores LLM-matched markets for news events to reduce API costs
+ */
+export const marketCache = mysqlTable("marketCache", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Hash of event title + keywords for cache key */
+  eventHash: varchar("eventHash", { length: 64 }).notNull().unique(),
+  /** Original event title for debugging */
+  eventTitle: text("eventTitle").notNull(),
+  /** JSON array of matched markets with relevance scores */
+  matchedMarkets: text("matchedMarkets").notNull(),
+  /** Cache creation timestamp */
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  /** Cache expiration timestamp (createdAt + 5 minutes) */
+  expiresAt: timestamp("expiresAt").notNull(),
+});
+
+export type MarketCache = typeof marketCache.$inferSelect;
+export type InsertMarketCache = typeof marketCache.$inferInsert;

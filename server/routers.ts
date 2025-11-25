@@ -68,14 +68,25 @@ export const appRouter = router({
         return opportunities;
       }),
 
-    // Match markets for a single event (on-demand)
+    // Match markets for a single event (on-demand) with caching
     matchEvent: publicProcedure
       .input(z.object({
         title: z.string(),
         keywords: z.array(z.string()),
         limit: z.number().optional().default(3),
       }))
-      .query(async ({ input }) => {        const { fetchAllMarkets } = await import("./services/marketAggregator");
+      .query(async ({ input }) => {
+        const { getCachedMarkets, setCachedMarkets } = await import("./services/marketCache");
+        
+        // Try to get from cache first
+        const cached = await getCachedMarkets(input.title, input.keywords);
+        if (cached) {
+          // Return cached results (already limited to requested amount)
+          return cached.slice(0, input.limit);
+        }
+
+        // Cache miss - fetch and match markets
+        const { fetchAllMarkets } = await import("./services/marketAggregator");
         const { findMarketsForEvent } = await import("./services/marketMatcher");
 
         const markets = await fetchAllMarkets(150);
@@ -85,6 +96,9 @@ export const appRouter = router({
           markets,
           input.limit
         );
+
+        // Store in cache for future requests
+        await setCachedMarkets(input.title, input.keywords, matchedMarkets);
 
         return matchedMarkets;
       }),
