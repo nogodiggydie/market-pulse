@@ -68,6 +68,27 @@ export const appRouter = router({
         return opportunities;
       }),
 
+    // Match markets for a single event (on-demand)
+    matchEvent: publicProcedure
+      .input(z.object({
+        title: z.string(),
+        keywords: z.array(z.string()),
+        limit: z.number().optional().default(3),
+      }))
+      .query(async ({ input }) => {        const { fetchAllMarkets } = await import("./services/marketAggregator");
+        const { findMarketsForEvent } = await import("./services/marketMatcher");
+
+        const markets = await fetchAllMarkets(150);
+        const matchedMarkets = await findMarketsForEvent(
+          input.title,
+          input.keywords,
+          markets,
+          input.limit
+        );
+
+        return matchedMarkets;
+      }),
+
     // Get Market of the Hour (top opportunity)
     marketOfHour: publicProcedure.query(async () => {
       const { fetchTrendingEvents } = await import("./services/newsDetector");

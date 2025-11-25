@@ -30,17 +30,10 @@ export default function DashboardEnhanced() {
 
   // Fetch trending news fast
   const { data: newsEvents, isLoading: newsLoading, refetch: refetchNews } = trpc.news.trending.useQuery({ limit: 20 });
-  
-  // Fetch matched markets for top 3 (slower)
-  const { data: opportunities, isLoading: oppsLoading } = trpc.news.opportunities.useQuery({ limit: 3 });
 
   const categories = ["all", "crypto", "politics", "economy", "tech"];
   
-  // Combine news with opportunities
   const allEvents = newsEvents || [];
-  const opportunityMap = new Map(
-    opportunities?.map((opp: any) => [opp.event.title, opp.markets]) || []
-  );
   
   const filteredEvents = selectedCategory && selectedCategory !== "all"
     ? allEvents.filter(e => e.category === selectedCategory)
@@ -248,16 +241,12 @@ export default function DashboardEnhanced() {
           </div>
         ) : filteredEvents && filteredEvents.length > 0 ? (
           <div className="space-y-6">
-            {filteredEvents.map((event: any, idx: number) => {
-              const markets = opportunityMap.get(event.title) || [];
-              return (
-                <NewsEventCard 
-                  key={idx} 
-                  opportunity={{ event, markets }} 
-                  isLoadingMarkets={oppsLoading && markets.length === 0}
-                />
-              );
-            })}
+            {filteredEvents.map((event: any, idx: number) => (
+              <NewsEventCard 
+                key={idx} 
+                event={event}
+              />
+            ))}
           </div>
         ) : (
           <Card className="p-12 text-center">
@@ -275,12 +264,22 @@ export default function DashboardEnhanced() {
   );
 }
 
-function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; isLoadingMarkets?: boolean }) {
+function NewsEventCard({ event }: { event: any }) {
   const [tradeModalOpen, setTradeModalOpen] = useState(false);
   const [selectedMarket, setSelectedMarket] = useState<any>(null);
+  const [showMarkets, setShowMarkets] = useState(false);
   
-  const event = opportunity.event;
-  const matchedMarkets = opportunity.markets || [];
+  // On-demand market matching
+  const { data: matchedMarkets, isLoading: isLoadingMarkets, refetch } = trpc.news.matchEvent.useQuery(
+    {
+      title: event.title,
+      keywords: event.keywords,
+      limit: 3,
+    },
+    {
+      enabled: showMarkets, // Only fetch when user clicks Show Markets
+    }
+  );
   
   const handleTradeClick = (market: any) => {
     setSelectedMarket({
@@ -353,8 +352,23 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
         </div>
       </div>
 
+      {/* Show Markets Button */}
+      {!showMarkets && (
+        <div className="mt-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => setShowMarkets(true)}
+          >
+            <Target className="h-4 w-4" />
+            Show Related Markets
+          </Button>
+        </div>
+      )}
+
       {/* Matched Markets Section */}
-      {isLoadingMarkets ? (
+      {showMarkets && isLoadingMarkets ? (
         <div className="mt-6 pt-6 border-t border-border/40">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="h-4 w-4 text-primary" />
@@ -369,17 +383,17 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
             ))}
           </div>
         </div>
-      ) : matchedMarkets.length > 0 && (
+      ) : showMarkets && matchedMarkets && matchedMarkets.length > 0 && (
         <div className="mt-6 pt-6 border-t border-border/40">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="h-4 w-4 text-primary" />
             <span className="font-semibold">Related Markets</span>
             <Badge variant="outline" className="ml-auto">
-              {matchedMarkets.length} found
+              {matchedMarkets?.length || 0} found
             </Badge>
           </div>
           <div className="space-y-3">
-            {matchedMarkets.map((match: any, i: number) => (
+            {matchedMarkets?.map((match: any, i: number) => (
               <div key={i} className="p-4 rounded-lg bg-muted/30 border border-border/40">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">

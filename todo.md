@@ -173,3 +173,18 @@
 - [x] Build P&L line chart component
 - [x] Add chart to My Positions page
 - [x] Test chart with sample data
+
+## Matched Markets Display
+- [x] Update opportunities endpoint to return top 3 markets per event
+- [x] Create MarketCard component with venue, title, probability
+- [x] Add relevance score badge to market cards
+- [x] Integrate Trade Now button with TradeModal
+- [x] Add expandable section to news event cards
+- [ ] Test market matching with live data
+
+## On-Demand Market Matching
+- [x] Create single-event matching endpoint
+- [x] Add Show Markets button to event cards
+- [x] Implement loading state for individual events
+- [ ] Cache matched results per event
+- [x] Test on-demand matching flow
