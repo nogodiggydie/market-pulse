@@ -427,6 +427,81 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     }),
   }),
 
+  // Trade journal with tags and analytics
+  journal: router({
+    // Tag management
+    tags: router({
+      // List all user tags
+      list: protectedProcedure.query(async ({ ctx }) => {
+        const { getUserTags } = await import("./journal");
+        return getUserTags(ctx.user.id);
+      }),
+
+      // Create new tag
+      create: protectedProcedure
+        .input(z.object({
+          name: z.string().min(1).max(64),
+          color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+          const { createTag } = await import("./journal");
+          return createTag({
+            userId: ctx.user.id,
+            name: input.name.toLowerCase().replace(/\s+/g, "-"),
+            color: input.color,
+          });
+        }),
+
+      // Delete tag
+      delete: protectedProcedure
+        .input(z.number())
+        .mutation(async ({ ctx, input }) => {
+          const { deleteTag } = await import("./journal");
+          return deleteTag(input, ctx.user.id);
+        }),
+    }),
+
+    // Position tagging
+    addTag: protectedProcedure
+      .input(z.object({
+        positionId: z.number(),
+        tagId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { addTagToPosition } = await import("./journal");
+        return addTagToPosition(input.positionId, input.tagId, ctx.user.id);
+      }),
+
+    removeTag: protectedProcedure
+      .input(z.object({
+        positionId: z.number(),
+        tagId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { removeTagFromPosition } = await import("./journal");
+        return removeTagFromPosition(input.positionId, input.tagId, ctx.user.id);
+      }),
+
+    // Get positions with tags
+    positionsWithTags: protectedProcedure
+      .input(z.object({ status: z.enum(["open", "closed", "expired"]).optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const { getPositionsWithTags } = await import("./journal");
+        return getPositionsWithTags(ctx.user.id, input?.status);
+      }),
+
+    // Analytics
+    tagAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      const { getTagAnalytics } = await import("./journal");
+      return getTagAnalytics(ctx.user.id);
+    }),
+
+    insights: protectedProcedure.query(async ({ ctx }) => {
+      const { getJournalInsights } = await import("./journal");
+      return getJournalInsights(ctx.user.id);
+    }),
+  }),
+
   opportunities: router({
     // Get top opportunities
     top: publicProcedure

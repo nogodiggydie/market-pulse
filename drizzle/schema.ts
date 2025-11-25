@@ -192,8 +192,14 @@ export const positions = mysqlTable("positions", {
   exitPrice: int("exitPrice"),
   /** Profit/loss in dollars */
   pnl: int("pnl"),
-  /** Notes or reasoning for the trade */
+  /** General notes about the trade */
   notes: text("notes"),
+  /** Reasoning for entering this position */
+  entryReasoning: text("entryReasoning"),
+  /** Reasoning for exiting this position */
+  exitReasoning: text("exitReasoning"),
+  /** Lessons learned from this trade */
+  lessonsLearned: text("lessonsLearned"),
   /** Date position was opened */
   openedAt: timestamp("openedAt").defaultNow().notNull(),
   /** Date position was closed */
@@ -204,3 +210,34 @@ export const positions = mysqlTable("positions", {
 
 export type Position = typeof positions.$inferSelect;
 export type InsertPosition = typeof positions.$inferInsert;
+
+/**
+ * Tags for categorizing and analyzing positions
+ * Examples: "earnings-play", "news-driven", "technical-analysis", "high-conviction"
+ */
+export const tags = mysqlTable("tags", {
+  id: int("id").autoincrement().primaryKey(),
+  /** User who created this tag */
+  userId: int("userId").notNull(),
+  /** Tag name (lowercase, hyphenated) */
+  name: varchar("name", { length: 64 }).notNull(),
+  /** Tag color for UI display (hex code) */
+  color: varchar("color", { length: 7 }).default("#3b82f6"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Tag = typeof tags.$inferSelect;
+export type InsertTag = typeof tags.$inferInsert;
+
+/**
+ * Junction table for many-to-many relationship between positions and tags
+ */
+export const positionTags = mysqlTable("position_tags", {
+  id: int("id").autoincrement().primaryKey(),
+  positionId: int("positionId").notNull(),
+  tagId: int("tagId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PositionTag = typeof positionTags.$inferSelect;
+export type InsertPositionTag = typeof positionTags.$inferInsert;

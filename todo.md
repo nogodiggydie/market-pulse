@@ -224,3 +224,15 @@
 - [ ] Add position entry form (for manual position tracking)
 - [ ] Add position close/edit functionality
 - [ ] Test positions CRUD operations
+
+## Trade Journal Feature
+- [x] Add tags table to database schema
+- [x] Add position_tags junction table for many-to-many relationship
+- [x] Extend positions table with journal fields (entry_reasoning, exit_reasoning, lessons_learned)
+- [x] Create tag management endpoints (create, list, delete)
+- [x] Add tagging endpoints to positions (add tag, remove tag)
+- [x] Create analytics endpoints (win rate by tag, avg P&L by tag, performance trends)
+- [x] Build journal entry form with rich text notes and tag selection
+- [x] Create analytics dashboard with charts and insights
+- [x] Add tag filtering to positions list
+- [x] Test journal CRUD and analytics

@@ -9,6 +9,7 @@ import DashboardEnhanced from "./pages/DashboardEnhanced";
 import Stream from "./pages/Stream";
 import Pricing from "./pages/Pricing";
 import Positions from "./pages/Positions";
+import Journal from "./pages/Journal";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -19,6 +20,7 @@ function Router() {
       <Route path={"/stream"} component={Stream} />
       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/positions"} component={Positions} />
+      <Route path={"/journal"} component={Journal} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

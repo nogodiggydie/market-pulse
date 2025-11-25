@@ -49,8 +49,17 @@ export async function createPosition(position: InsertPosition) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(positions).values(position);
-  return result;
+  await db.insert(positions).values(position);
+  
+  // Get the created position
+  const created = await db
+    .select()
+    .from(positions)
+    .where(and(eq(positions.userId, position.userId), eq(positions.question, position.question)))
+    .orderBy(desc(positions.createdAt))
+    .limit(1);
+
+  return created[0];
 }
 
 /**
