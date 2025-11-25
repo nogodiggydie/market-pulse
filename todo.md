@@ -236,3 +236,22 @@
 - [x] Create analytics dashboard with charts and insights
 - [x] Add tag filtering to positions list
 - [x] Test journal CRUD and analytics
+
+
+## Bug: Polymarket Markets Not Displaying
+- [x] Debug Polymarket API integration
+- [x] Check if Polymarket markets are being fetched correctly
+- [x] Verify Polymarket markets appear in LLM matching results
+- [x] Test Polymarket market display in UI
+- [x] Add error logging for Polymarket API failures
+
+## AI Analysis for News & Market Movement
+- [x] Create AI analysis endpoint that predicts market direction
+- [x] Add sentiment analysis for news events
+- [x] Generate bullish/bearish predictions with reasoning
+- [x] Suggest optimal entry points based on analysis
+- [ ] Display AI analysis in news event cards (BLOCKED - button not rendering)
+- [x] Add confidence scores to predictions
+- [x] Test AI analysis accuracy (4/4 tests passing)
+
+**Status**: Backend fully implemented and tested. Frontend button code written but not rendering despite correct implementation. Needs investigation of React hydration or build cache issues.

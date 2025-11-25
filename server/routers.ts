@@ -103,6 +103,26 @@ export const appRouter = router({
         return matchedMarkets;
       }),
 
+    // Get AI analysis for a news event
+    analyzeEvent: publicProcedure
+      .input(z.object({
+        title: z.string(),
+        description: z.string(),
+        relatedMarkets: z.array(z.object({
+          question: z.string(),
+          venue: z.string(),
+          probability: z.number().optional(),
+        })).optional(),
+      }))
+      .query(async ({ input }) => {
+        const { analyzeNewsImpact } = await import("./services/aiAnalysis");
+        return analyzeNewsImpact(
+          input.title,
+          input.description,
+          input.relatedMarkets
+        );
+      }),
+
     // Warm cache for high-velocity events (background job)
     warmCache: publicProcedure
       .input(z.object({

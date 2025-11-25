@@ -12,7 +12,13 @@ import {
   ExternalLink,
   Filter,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Brain,
+  TrendingDown,
+  Minus,
+  AlertTriangle,
+  CheckCircle2,
+  Info
 } from "lucide-react";
 import { APP_TITLE } from "@/const";
 import { Link } from "wouter";
@@ -208,6 +214,8 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
   const event = opportunity.event;
   const [localMarkets, setLocalMarkets] = useState<any[]>(opportunity.markets || []);
   const [showMarkets, setShowMarkets] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [analysis, setAnalysis] = useState<any>(null);
 
   // Match markets on-demand
   const matchEventQuery = trpc.news.matchEvent.useQuery(
@@ -228,8 +236,32 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
     }
   }, [matchEventQuery.data]);
 
+  // AI analysis query
+  const analysisQuery = trpc.news.analyzeEvent.useQuery(
+    {
+      title: event.title,
+      description: event.description,
+      relatedMarkets: localMarkets.map((m: any) => ({
+        question: m.market.question,
+        venue: m.market.venue,
+        probability: m.market.probability,
+      })),
+    },
+    {
+      enabled: showAnalysis && !analysis,
+    }
+  );
+
+  // Update analysis when query succeeds
+  useEffect(() => {
+    if (analysisQuery.data) {
+      setAnalysis(analysisQuery.data);
+    }
+  }, [analysisQuery.data]);
+
   const matchedMarkets = localMarkets;
   const isLoadingMarketsLocal = matchEventQuery.isLoading && showMarkets;
+  const isLoadingAnalysis = analysisQuery.isLoading && showAnalysis;
   const velocityColor = 
     event.velocity >= 80 ? "text-chart-3" :
     event.velocity >= 60 ? "text-primary" :
@@ -350,6 +382,81 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
         </div>
       )}
 
+      {/* AI Analysis Section */}
+      {isLoadingAnalysis ? (
+        <div className="mt-6 pt-6 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="h-4 w-4 text-accent animate-pulse" />
+            <span className="font-semibold">Analyzing Market Impact...</span>
+          </div>
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        </div>
+      ) : analysis && (
+        <div className="mt-6 pt-6 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="h-4 w-4 text-accent" />
+            <span className="font-semibold">AI Market Analysis</span>
+            <Badge 
+              variant={analysis.sentiment === 'bullish' ? 'default' : analysis.sentiment === 'bearish' ? 'destructive' : 'secondary'}
+              className="ml-auto gap-1"
+            >
+              {analysis.sentiment === 'bullish' && <TrendingUp className="h-3 w-3" />}
+              {analysis.sentiment === 'bearish' && <TrendingDown className="h-3 w-3" />}
+              {analysis.sentiment === 'neutral' && <Minus className="h-3 w-3" />}
+              {analysis.sentiment.toUpperCase()}
+            </Badge>
+            <Badge variant="outline">{analysis.confidence}% confidence</Badge>
+          </div>
+          <div className="space-y-4">
+            <div className="p-4 rounded-lg bg-accent/10 border border-accent/20">
+              <div className="flex items-start gap-2 mb-2">
+                <Info className="h-4 w-4 text-accent mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm mb-1">Market Impact</p>
+                  <p className="text-sm text-muted-foreground">{analysis.reasoning}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/30 border border-border/40">
+              <p className="font-medium text-sm mb-1">Prediction</p>
+              <p className="text-sm text-muted-foreground">{analysis.marketImpact}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm mb-1">Suggested Action</p>
+                  <p className="text-sm text-muted-foreground">{analysis.suggestedAction}</p>
+                </div>
+              </div>
+            </div>
+            {analysis.keyFactors && analysis.keyFactors.length > 0 && (
+              <div>
+                <p className="font-medium text-sm mb-2">Key Factors</p>
+                <ul className="space-y-1">
+                  {analysis.keyFactors.map((factor: string, i: number) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="text-primary mt-1">•</span>
+                      <span>{factor}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              <Badge variant="outline" className="text-xs">
+                Risk: {analysis.riskLevel.toUpperCase()}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div className="mt-4 flex gap-2">
         {!showMarkets && matchedMarkets.length === 0 && (
@@ -363,6 +470,15 @@ function NewsEventCard({ opportunity, isLoadingMarkets }: { opportunity: any; is
             Show Related Markets
           </Button>
         )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={() => setShowAnalysis(true)}
+        >
+          <Brain className="h-4 w-4" />
+          AI Analysis
+        </Button>
         {event.url && (
           <Button variant="outline" size="sm" className="gap-2" asChild>
             <a href={event.url} target="_blank" rel="noopener noreferrer">
