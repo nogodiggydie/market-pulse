@@ -212,7 +212,7 @@ export default function Home() {
                 Ready to Get Started?
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join traders who are already using Market Pulse to stay ahead of the market.
+                Join traders who are already using Probability Exchange to stay ahead of the market.
               </p>
               <div className="flex items-center justify-center gap-4">
                 <a href={getLoginUrl()}>

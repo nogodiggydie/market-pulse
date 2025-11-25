@@ -255,3 +255,15 @@
 - [x] Test AI analysis accuracy (4/4 tests passing)
 
 **Status**: Backend fully implemented and tested. Frontend button code written but not rendering despite correct implementation. Needs investigation of React hydration or build cache issues.
+
+
+## Rebrand to Probability Exchange (Probex)
+- [ ] Update VITE_APP_TITLE environment variable to "Probability Exchange" (USER ACTION: Update in Management UI Settings)
+- [x] Update APP_TITLE constant in client/src/const.ts
+- [x] Update logo references (APP_LOGO) to PX branding
+- [x] Update all page titles and headers (using APP_TITLE constant)
+- [x] Update navigation brand text (using APP_TITLE constant)
+- [x] Update landing page CTA section
+- [x] Update footer references (using APP_TITLE constant)
+- [ ] Update meta tags and SEO
+- [x] Test rebranding across all pages
