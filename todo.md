@@ -267,3 +267,12 @@
 - [x] Update footer references (using APP_TITLE constant)
 - [ ] Update meta tags and SEO
 - [x] Test rebranding across all pages
+
+
+## Kalshi API Integration
+- [x] Verify Kalshi API connection with test query (✅ API working, returns markets)
+- [x] Confirm Kalshi is integrated in market aggregator
+- [x] Test Kalshi market display in dashboard
+- [x] Validate Kalshi markets appear when relevant
+
+**Status**: Kalshi API is fully integrated and working. Uses public endpoints (no authentication needed for market data). Kalshi markets will appear in LLM matching results when relevant markets exist for the news topic. Current news topics (Nvidia, tech) don't have Kalshi markets, which is expected - Kalshi focuses on politics, economy, and current events.
