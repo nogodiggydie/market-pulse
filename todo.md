@@ -331,3 +331,21 @@
 - [x] FIXED: Added venue filters (All, Kalshi, Polymarket, Manifold) to DashboardEnhanced.tsx
 - [x] FIXED: Added AI Analysis button next to Show Related Markets in DashboardEnhanced.tsx
 - [x] VERIFIED: Both features now visible and working in production build (port 3006)
+
+
+## Connect AI Analysis Button
+- [ ] Review existing news.analyzeEvent tRPC endpoint
+- [ ] Add state management for AI analysis (showAnalysis, analysisData)
+- [ ] Create tRPC query to fetch analysis when button clicked
+- [ ] Design UI component to display sentiment, predictions, and entry points
+- [ ] Add loading state while analysis is being generated
+- [ ] Test AI analysis display with multiple news events
+- [ ] Verify analysis accuracy and formatting
+
+## Push AI Analysis Changes to GitHub
+- [ ] Update AI Analysis button onClick handler to toggle showAnalysis
+- [ ] Add loading state UI for AI analysis
+- [ ] Add display UI for analysis results (sentiment, reasoning, impact, action, factors, risk)
+- [ ] Test AI Analysis in browser
+- [ ] Commit changes to git
+- [ ] Push to GitHub repository

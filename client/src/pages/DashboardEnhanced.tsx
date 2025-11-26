@@ -293,6 +293,7 @@ function NewsEventCard({ event }: { event: any }) {
   const [tradeModalOpen, setTradeModalOpen] = useState(false);
   const [selectedMarket, setSelectedMarket] = useState<any>(null);
   const [showMarkets, setShowMarkets] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
   
   // On-demand market matching
   const { data: matchedMarkets, isLoading: isLoadingMarkets, refetch } = trpc.news.matchEvent.useQuery(
@@ -303,6 +304,22 @@ function NewsEventCard({ event }: { event: any }) {
     },
     {
       enabled: showMarkets, // Only fetch when user clicks Show Markets
+    }
+  );
+  
+  // On-demand AI analysis
+  const { data: aiAnalysis, isLoading: isLoadingAnalysis } = trpc.news.analyzeEvent.useQuery(
+    {
+      title: event.title,
+      description: event.description,
+      relatedMarkets: matchedMarkets?.map(m => ({
+        question: m.market.question,
+        venue: m.market.venue,
+        probability: m.market.probability,
+      })),
+    },
+    {
+      enabled: showAnalysis, // Only fetch when user clicks AI Analysis
     }
   );
   
@@ -393,10 +410,10 @@ function NewsEventCard({ event }: { event: any }) {
             variant="outline"
             size="sm"
             className="gap-2"
-            onClick={() => alert('AI Analysis feature coming soon!')}
+            onClick={() => setShowAnalysis(!showAnalysis)}
           >
             <Brain className="h-4 w-4" />
-            AI Analysis
+            {showAnalysis ? 'Hide Analysis' : 'AI Analysis'}
           </Button>
         </div>
       )}
@@ -467,6 +484,73 @@ function NewsEventCard({ event }: { event: any }) {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* AI Analysis Results */}
+      {showAnalysis && isLoadingAnalysis && (
+        <div className="mt-6 pt-6 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="h-4 w-4 text-primary" />
+            <span className="font-semibold">Generating AI Analysis...</span>
+          </div>
+          <Skeleton className="h-20 w-full" />
+        </div>
+      )}
+
+      {showAnalysis && aiAnalysis && (
+        <div className="mt-6 pt-6 border-t border-border/40">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="h-4 w-4 text-primary" />
+            <span className="font-semibold">AI Analysis</span>
+            <Badge variant={
+              aiAnalysis.sentiment === 'bullish' ? 'default' : 
+              aiAnalysis.sentiment === 'bearish' ? 'destructive' : 
+              'secondary'
+            }>
+              {aiAnalysis.sentiment.toUpperCase()}
+            </Badge>
+            <Badge variant="outline">{aiAnalysis.confidence}% confidence</Badge>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium mb-2">Reasoning</h4>
+              <p className="text-sm text-muted-foreground">{aiAnalysis.reasoning}</p>
+            </div>
+            
+            <div>
+              <h4 className="font-medium mb-2">Market Impact</h4>
+              <p className="text-sm text-muted-foreground">{aiAnalysis.marketImpact}</p>
+            </div>
+            
+            <div>
+              <h4 className="font-medium mb-2">Suggested Action</h4>
+              <p className="text-sm text-muted-foreground">{aiAnalysis.suggestedAction}</p>
+            </div>
+            
+            {aiAnalysis.keyFactors && aiAnalysis.keyFactors.length > 0 && (
+              <div>
+                <h4 className="font-medium mb-2">Key Factors</h4>
+                <ul className="list-disc list-inside space-y-1">
+                  {aiAnalysis.keyFactors.map((factor, i) => (
+                    <li key={i} className="text-sm text-muted-foreground">{factor}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Risk Level:</span>
+              <Badge variant={
+                aiAnalysis.riskLevel === 'low' ? 'default' :
+                aiAnalysis.riskLevel === 'high' ? 'destructive' :
+                'secondary'
+              }>
+                {aiAnalysis.riskLevel.toUpperCase()}
+              </Badge>
+            </div>
           </div>
         </div>
       )}
