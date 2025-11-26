@@ -16,7 +16,8 @@ import {
   Activity,
   BarChart3,
   PieChart,
-  Target
+  Target,
+  Brain
 } from "lucide-react";
 import { APP_TITLE } from "@/const";
 import { Link } from "wouter";
@@ -27,6 +28,7 @@ import { ConnectWallet } from "@/components/ConnectWallet";
 export default function DashboardEnhanced() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedVenue, setSelectedVenue] = useState<string | null>(null);
 
   // Fetch trending news fast
   const { data: newsEvents, isLoading: newsLoading, refetch: refetchNews } = trpc.news.trending.useQuery({ limit: 20 });
@@ -200,32 +202,55 @@ export default function DashboardEnhanced() {
         )}
 
         {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Filter className="h-4 w-4" />
-            Category:
+        <div className="space-y-4 mb-6">
+          {/* Category Filters */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Filter className="h-4 w-4" />
+              Category:
+            </div>
+            <div className="flex gap-2">
+              {categories.map((cat) => (
+                <Button
+                  key={cat}
+                  variant={selectedCategory === cat || (cat === "all" && !selectedCategory) ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(cat === "all" ? null : cat)}
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-auto gap-2"
+              onClick={() => refetchNews()}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
           </div>
-          <div className="flex gap-2">
-            {categories.map((cat) => (
-              <Button
-                key={cat}
-                variant={selectedCategory === cat || (cat === "all" && !selectedCategory) ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(cat === "all" ? null : cat)}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </Button>
-            ))}
+
+          {/* Venue Filters */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <DollarSign className="h-4 w-4" />
+              Venue:
+            </div>
+            <div className="flex gap-2">
+              {["all", "kalshi", "polymarket", "manifold"].map((venue) => (
+                <Button
+                  key={venue}
+                  variant={selectedVenue === venue || (venue === "all" && !selectedVenue) ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedVenue(venue === "all" ? null : venue)}
+                >
+                  {venue.charAt(0).toUpperCase() + venue.slice(1)}
+                </Button>
+              ))}
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ml-auto gap-2"
-            onClick={() => refetchNews()}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
         </div>
 
         {/* News Feed */}
@@ -352,9 +377,9 @@ function NewsEventCard({ event }: { event: any }) {
         </div>
       </div>
 
-      {/* Show Markets Button */}
+      {/* Action Buttons */}
       {!showMarkets && (
-        <div className="mt-4">
+        <div className="mt-4 flex gap-2">
           <Button 
             variant="outline" 
             size="sm" 
@@ -363,6 +388,15 @@ function NewsEventCard({ event }: { event: any }) {
           >
             <Target className="h-4 w-4" />
             Show Related Markets
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => alert('AI Analysis feature coming soon!')}
+          >
+            <Brain className="h-4 w-4" />
+            AI Analysis
           </Button>
         </div>
       )}

@@ -115,8 +115,8 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="flex items-center gap-4 mb-6 flex-wrap">
+        {/* Category Filters */}
+        <div className="flex items-center gap-4 flex-wrap mb-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Filter className="h-4 w-4" />
             Category:
@@ -130,23 +130,6 @@ export default function Dashboard() {
                 onClick={() => setSelectedCategory(cat === "all" ? null : cat)}
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </Button>
-            ))}
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4">
-            <DollarSign className="h-4 w-4" />
-            Venue:
-          </div>
-          <div className="flex gap-2">
-            {["all", "kalshi", "polymarket", "manifold"].map((venue) => (
-              <Button
-                key={venue}
-                variant={selectedVenue === venue || (venue === "all" && !selectedVenue) ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedVenue(venue === "all" ? null : venue)}
-              >
-                {venue.charAt(0).toUpperCase() + venue.slice(1)}
               </Button>
             ))}
           </div>
@@ -170,6 +153,27 @@ export default function Dashboard() {
               <RefreshCw className="h-4 w-4" />
               Refresh
             </Button>
+          </div>
+        </div>
+
+        {/* Venue Filters */}
+        <div className="flex items-center gap-4 flex-wrap mb-6 bg-red-500 p-4">
+          <p className="text-white font-bold">VENUE FILTERS TEST - IF YOU SEE THIS, RENDERING WORKS!</p>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <DollarSign className="h-4 w-4" />
+            Venue:
+          </div>
+          <div className="flex gap-2">
+            {["all", "kalshi", "polymarket", "manifold"].map((venue) => (
+              <Button
+                key={venue}
+                variant={selectedVenue === venue || (venue === "all" && !selectedVenue) ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedVenue(venue === "all" ? null : venue)}
+              >
+                {venue.charAt(0).toUpperCase() + venue.slice(1)}
+              </Button>
+            ))}
           </div>
         </div>
 

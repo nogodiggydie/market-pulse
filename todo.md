@@ -318,3 +318,16 @@
 - [x] Test with production build to bypass dev server caching
 - [x] RESOLVED: Production build works perfectly - issue was dev server HMR caching
 - [x] SOLUTION: Use production builds for testing, or clear node_modules/.vite before dev server restarts
+
+
+## Fix Rendering Bugs
+- [x] Investigate why AI Analysis button doesn't render despite correct code
+- [x] Investigate why venue filter buttons don't render despite correct code
+- [x] Check for React conditional rendering issues
+- [x] Check for CSS display/visibility issues
+- [x] Test fixes in production build
+- [x] Verify all UI elements appear correctly
+- [x] ROOT CAUSE: App was using DashboardEnhanced.tsx, NOT Dashboard.tsx!
+- [x] FIXED: Added venue filters (All, Kalshi, Polymarket, Manifold) to DashboardEnhanced.tsx
+- [x] FIXED: Added AI Analysis button next to Show Related Markets in DashboardEnhanced.tsx
+- [x] VERIFIED: Both features now visible and working in production build (port 3006)
